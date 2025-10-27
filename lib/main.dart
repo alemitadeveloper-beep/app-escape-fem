@@ -49,7 +49,6 @@ await WordDatabase.instance.importEscapesFromScrapedJson();
     print('⚠️ Debug empresa falló: $e');
   }
 
-// hola hola
   runApp(const MyApp());
 }
 
