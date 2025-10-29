@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
-
-// Imports de la nueva arquitectura
-import 'features/escape_rooms/data/datasources/word_database.dart';
-import 'features/escape_rooms/presentation/pages/word_list_page_refactored.dart';
-import 'features/escape_rooms/presentation/pages/favorites_page_refactored.dart';
-import 'features/auth/presentation/pages/login_page_refactored.dart';
-import 'features/auth/domain/services/auth_service.dart';
-import 'core/theme/theme.dart';
-
-// Imports antiguos que aún se usan
+import 'db/word_database.dart';
+import 'pages/favorites_pages.dart' as fav;
+import 'pages/word_list_page.dart' as word;
 import 'pages/account_page.dart' as account;
+import 'pages/login_page.dart';
+import 'theme/theme.dart';
+import 'services/auth_service.dart';
 import 'pages/map_page.dart';
 
 void main() async {
@@ -20,34 +16,40 @@ void main() async {
   // 🔁 OPCIONAL: borrar la base de datos en desarrollo
   // await deleteDatabaseIfNeeded();
 
-  // Inicializar base de datos
-  await WordDatabase.instance.seedDatabaseFromJson();
+await WordDatabase.instance.seedDatabaseFromJson();
 
-  // (UNA VEZ) Rellenar empresa de las filas existentes
-  final updated = await WordDatabase.instance.backfillEmpresaFromExisting();
-  print('✅ Empresa backfilled en $updated registros');
+// (UNA VEZ) Rellenar empresa de las filas existentes
+final updated = await WordDatabase.instance.backfillEmpresaFromExisting();
+print('✅ Empresa backfilled en $updated registros');
 
-  // (OPCIONAL una vez): fusionar con el JSON scrapeado si ya lo tienes en assets
-  await WordDatabase.instance.importEscapesFromScrapedJson();
+// (OPCIONAL una vez): fusionar con el JSON scrapeado si ya lo tienes en assets
+await WordDatabase.instance.importEscapesFromScrapedJson();
+
+  // 🧩 (OPCIONAL) Importar del JSON scrapeado y fusionar en BBDD (una sola vez).
+  // Descomenta estas dos líneas para ejecutarlo y, tras ver el log en consola,
+  // vuelve a comentarlas para no reimportar cada arranque.
+  // await WordDatabase.instance.importEscapesFromScrapedJson();
 
   // 🔎 DEBUG: verificar campo 'empresa' en BBDD
   try {
     final n = await WordDatabase.instance.countConEmpresa();
+    // Ej: 👉 Registros con empresa: 123
+    // Verás esta línea en la consola de Flutter
+    // (Debug Console / Run)
+    // ignore: avoid_print
     print('👉 Registros con empresa: $n');
 
     final faltan = await WordDatabase.instance.getSinEmpresa(limit: 5);
     for (final w in faltan) {
+      // ignore: avoid_print
       print('⚠️ Sin empresa → ${w.text} | ${w.web}');
     }
   } catch (e) {
+    // ignore: avoid_print
     print('⚠️ Debug empresa falló: $e');
   }
 
-  // Inicializar AuthService
-  final authService = AuthService();
-  await authService.initialize();
-
-  runApp(MyApp(authService: authService));
+  runApp(const MyApp());
 }
 
 Future<void> deleteDatabaseIfNeeded() async {
@@ -57,9 +59,7 @@ Future<void> deleteDatabaseIfNeeded() async {
 }
 
 class MyApp extends StatelessWidget {
-  final AuthService authService;
-
-  const MyApp({required this.authService, super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -69,9 +69,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Escape Room App',
       theme: materialTheme.light(),
-      initialRoute: authService.isLoggedIn ? '/main' : '/login',
+      initialRoute: '/login',
       routes: {
-        '/login': (context) => const LoginPageRefactored(),
+        '/login': (context) => const LoginPage(),
         '/main': (context) => const MainNavigation(),
       },
     );
@@ -143,20 +143,18 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   int _selectedIndex = 0;
 
-  // Usando las páginas REFACTORIZADAS
   static final List<Widget> _pages = <Widget>[
     const HomePage(),
-    const FavoritesPageRefactored(), // ⭐ NUEVA
-    const WordListPageRefactored(),  // ⭐ NUEVA
+    const fav.FavoritesPage(),
+    const word.WordListPage(),
     const account.AccountPage(),
-    const MapPage(),
+    const MapPage(), // <- añadida aquí
   ];
 
   void _onItemTapped(int index) {
     final BuildContext currentContext = context;
-    final authService = AuthService();
 
-    if (index == 3 && !authService.isLoggedIn) {
+    if (index == 3 && !AuthService.isLoggedIn) {
       Navigator.pushNamed(currentContext, '/login');
       return;
     }
