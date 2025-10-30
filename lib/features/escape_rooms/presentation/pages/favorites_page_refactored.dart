@@ -7,6 +7,7 @@ import '../widgets/favorite_card.dart';
 import '../widgets/played_expansion_card.dart';
 import '../widgets/pending_expansion_card.dart';
 import '../widgets/review_dialog.dart';
+import '../../../achievements/domain/services/achievement_service.dart';
 
 /// Página de Mis Escape Rooms - REFACTORIZADA
 class FavoritesPageRefactored extends StatefulWidget {
@@ -20,6 +21,7 @@ class FavoritesPageRefactored extends StatefulWidget {
 class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
     with SingleTickerProviderStateMixin {
   final EscapeRoomRepository _repository = EscapeRoomRepository();
+  final AchievementService _achievementService = AchievementService();
 
   late TabController _tabController;
   List<Word> _favorites = [];
@@ -32,6 +34,17 @@ class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(_handleTabSelection);
+
+    // Setup achievement unlock callback
+    _achievementService.onAchievementUnlocked = (achievement) {
+      if (mounted) {
+        _achievementService.showAchievementUnlockedNotification(
+          context,
+          achievement,
+        );
+      }
+    };
+
     _loadData();
   }
 
@@ -71,6 +84,9 @@ class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
       _pending = pending;
       _ranking = rankingList;
     });
+
+    // Check and update achievements after data loads
+    await _achievementService.checkAndUpdateAchievements();
   }
 
   void _openReviewDialog(Word word) {

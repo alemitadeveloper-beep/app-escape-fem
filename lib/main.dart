@@ -8,11 +8,14 @@ import 'features/escape_rooms/presentation/pages/word_list_page_refactored.dart'
 import 'features/escape_rooms/presentation/pages/favorites_page_refactored.dart';
 import 'features/auth/presentation/pages/login_page_refactored.dart';
 import 'features/auth/domain/services/auth_service.dart';
+import 'features/achievements/presentation/pages/achievements_page.dart';
 import 'core/theme/theme.dart';
 
 // Imports antiguos que aún se usan
 import 'pages/account_page.dart' as account;
 import 'pages/map_page.dart';
+import 'services/auth_service.dart' as old_auth;
+import 'debug_auth_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,9 +46,12 @@ void main() async {
     print('⚠️ Debug empresa falló: $e');
   }
 
-  // Inicializar AuthService
+  // Inicializar AuthService nuevo (refactorizado)
   final authService = AuthService();
   await authService.initialize();
+
+  // Inicializar AuthService antiguo (para AccountPage)
+  await old_auth.AuthService.initialize();
 
   runApp(MyApp(authService: authService));
 }
@@ -66,13 +72,19 @@ class MyApp extends StatelessWidget {
     final MaterialTheme materialTheme =
         MaterialTheme(ThemeData.light().textTheme);
 
+    // Usar el AuthService antiguo para la ruta inicial (sincronizado con AccountPage)
+    final initialRoute = old_auth.AuthService.isLoggedIn ? '/main' : '/login';
+    print('🚀 App starting - initialRoute: $initialRoute, isLoggedIn: ${old_auth.AuthService.isLoggedIn}');
+
     return MaterialApp(
       title: 'Escape Room App',
       theme: materialTheme.light(),
-      initialRoute: authService.isLoggedIn ? '/main' : '/login',
+      initialRoute: initialRoute,
       routes: {
         '/login': (context) => const LoginPageRefactored(),
         '/main': (context) => const MainNavigation(),
+        '/achievements': (context) => const AchievementsPage(),
+        '/debug-auth': (context) => const DebugAuthPage(),
       },
     );
   }
@@ -153,14 +165,13 @@ class _MainNavigationState extends State<MainNavigation> {
   ];
 
   void _onItemTapped(int index) {
-    final BuildContext currentContext = context;
-    final authService = AuthService();
+    // Debug: imprimir estado de autenticación
+    print('🔍 Tab $index tapped - isLoggedIn: ${old_auth.AuthService.isLoggedIn}, username: ${old_auth.AuthService.username}');
 
-    if (index == 3 && !authService.isLoggedIn) {
-      Navigator.pushNamed(currentContext, '/login');
-      return;
-    }
+    // TEMPORALMENTE DESHABILITADO: Permitir acceso a Mi cuenta sin login
+    // para poder acceder a Debug Auth y Mis Logros
 
+    print('✅ Mostrando página $index (sin verificar login)');
     setState(() {
       _selectedIndex = index;
     });

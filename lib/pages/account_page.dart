@@ -27,6 +27,22 @@ class AccountPage extends StatelessWidget {
             const Text('Ajustes', style: TextStyle(fontSize: 18)),
             const Divider(),
             ListTile(
+              leading: const Icon(Icons.bug_report, color: Colors.orange),
+              title: const Text('Debug Auth (temporal)'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                Navigator.pushNamed(context, '/debug-auth');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.emoji_events, color: Colors.amber),
+              title: const Text('Mis Logros'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                Navigator.pushNamed(context, '/achievements');
+              },
+            ),
+            ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Preferencias'),
               onTap: () {
@@ -36,9 +52,11 @@ class AccountPage extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Cerrar sesión'),
-              onTap: () {
-                AuthService.logout(); // ⬅️ importante
-                Navigator.pushReplacementNamed(context, '/login');
+              onTap: () async {
+                await AuthService.logout(); // ⬅️ importante
+                if (context.mounted) {
+                  Navigator.pushReplacementNamed(context, '/login');
+                }
               },
             ),
           ],
@@ -46,9 +64,11 @@ class AccountPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF000D17),
-        onPressed: () {
-          AuthService.logout(); // ⬅️ también aquí por si lo usas
-          Navigator.pushReplacementNamed(context, '/login');
+        onPressed: () async {
+          await AuthService.logout(); // ⬅️ también aquí por si lo usas
+          if (context.mounted) {
+            Navigator.pushReplacementNamed(context, '/login');
+          }
         },
         child: const Icon(Icons.logout),
       ),
