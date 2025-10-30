@@ -60,8 +60,12 @@ class _AchievementsPageState extends State<AchievementsPage>
             _tabController.animateTo(index);
             setState(() {});
           },
-          selectedItemColor: const Color(0xFF000D17),
-          unselectedItemColor: Colors.grey,
+          selectedItemColor: Theme.of(context).colorScheme.primary,
+          unselectedItemColor: Theme.of(context).colorScheme.outline,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          showUnselectedLabels: false,
+          showSelectedLabels: true,
+          type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),

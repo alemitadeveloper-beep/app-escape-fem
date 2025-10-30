@@ -87,30 +87,31 @@ class _AchievementsHomePageState extends State<AchievementsHomePage> {
             ),
             const SizedBox(height: 20),
 
-            // Progreso por tier
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withOpacity(0.2)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Logros por Nivel',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+            // Insignias conseguidas
+            if (_unlockedAchievements.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Insignias Conseguidas',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTierProgress(),
-                ],
+                    const SizedBox(height: 16),
+                    _buildAchievementBadges(),
+                  ],
+                ),
               ),
-            ),
             const SizedBox(height: 20),
 
             // Últimos logros desbloqueados
@@ -215,47 +216,33 @@ class _AchievementsHomePageState extends State<AchievementsHomePage> {
     );
   }
 
-  Widget _buildTierProgress() {
-    final tiers = [
-      {'name': 'Bronce', 'count': _stats['bronze'], 'color': const Color(0xFFCD7F32)},
-      {'name': 'Plata', 'count': _stats['silver'], 'color': const Color(0xFFC0C0C0)},
-      {'name': 'Oro', 'count': _stats['gold'], 'color': const Color(0xFFFFD700)},
-      {'name': 'Platino', 'count': _stats['platinum'], 'color': const Color(0xFFE5E4E2)},
-    ];
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: tiers.map((tier) {
-        return Column(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: tier['color'] as Color,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  '${tier['count']}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
-                ),
+  Widget _buildAchievementBadges() {
+    // Mostrar los emojis de los logros desbloqueados en una grilla
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      alignment: WrapAlignment.start,
+      children: _unlockedAchievements.map((achievement) {
+        return GestureDetector(
+          onTap: () => _showAchievementDetail(achievement),
+          child: Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 2,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              tier['name'] as String,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
+            child: Center(
+              child: Text(
+                achievement.emoji,
+                style: const TextStyle(fontSize: 32),
               ),
             ),
-          ],
+          ),
         );
       }).toList(),
     );

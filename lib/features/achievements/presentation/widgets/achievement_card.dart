@@ -71,41 +71,15 @@ class AchievementCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                achievement.title,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: isLocked
-                                      ? Colors.grey.shade600
-                                      : Colors.blueGrey.shade900,
-                                ),
-                              ),
-                            ),
-                            // Badge del tier
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: tierColor.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: tierColor),
-                              ),
-                              child: Text(
-                                AchievementService.getTierName(achievement.tier),
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: tierColor,
-                                ),
-                              ),
-                            ),
-                          ],
+                        Text(
+                          achievement.title,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: isLocked
+                                ? Colors.grey.shade600
+                                : Colors.blueGrey.shade900,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
