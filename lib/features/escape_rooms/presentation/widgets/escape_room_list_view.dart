@@ -5,13 +5,11 @@ import 'escape_room_card.dart';
 /// Vista de lista de escape rooms
 class EscapeRoomListView extends StatelessWidget {
   final List<Word> words;
-  final Function(Word) onToggleFavorite;
   final Function(Word) onTogglePlayed;
   final Function(Word) onTogglePending;
 
   const EscapeRoomListView({
     required this.words,
-    required this.onToggleFavorite,
     required this.onTogglePlayed,
     required this.onTogglePending,
     super.key,
@@ -35,7 +33,6 @@ class EscapeRoomListView extends StatelessWidget {
         final word = words[index];
         return EscapeRoomCard(
           word: word,
-          onToggleFavorite: () => onToggleFavorite(word),
           onTogglePlayed: () => onTogglePlayed(word),
           onTogglePending: () => onTogglePending(word),
         );

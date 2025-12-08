@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import '../../data/models/word.dart';
 import '../../data/repositories/escape_room_repository.dart';
 import '../../../../core/utils/rating_utils.dart';
-import '../widgets/favorite_card.dart';
 import '../widgets/played_expansion_card.dart';
 import '../widgets/pending_expansion_card.dart';
 import '../widgets/review_dialog.dart';
@@ -24,7 +23,6 @@ class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
   final AchievementService _achievementService = AchievementService();
 
   late TabController _tabController;
-  List<Word> _favorites = [];
   List<Word> _played = [];
   List<Word> _pending = [];
   List<Word> _ranking = [];
@@ -32,7 +30,7 @@ class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_handleTabSelection);
 
     // Setup achievement unlock callback
@@ -67,7 +65,6 @@ class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
   }
 
   Future<void> _loadData() async {
-    final favorites = await _repository.getFavorites();
     final played = await _repository.getPlayed();
     final pending = await _repository.getPending();
 
@@ -79,7 +76,6 @@ class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
           .compareTo(RatingUtils.calculateAverageRating(a)));
 
     setState(() {
-      _favorites = favorites;
       _played = played;
       _pending = pending;
       _ranking = rankingList;
@@ -97,11 +93,6 @@ class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
         onReviewSaved: _loadData,
       ),
     );
-  }
-
-  Future<void> _deleteFavorite(Word word) async {
-    await _repository.toggleFavorite(word.id!, false);
-    _loadData();
   }
 
   Future<void> _deletePending(Word word) async {
@@ -134,7 +125,7 @@ class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
               backgroundColor: const Color(0xFF000D17),
               activeColor: Colors.lightBlueAccent.shade100,
               inactiveColor: Colors.blueGrey.shade100,
-              items: List.generate(4, (index) {
+              items: List.generate(3, (index) {
                 final isSelected = _tabController.index == index;
                 double iconSize = isSelected ? 30.0 : 24.0;
                 return BottomNavigationBarItem(
@@ -142,7 +133,6 @@ class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
                     duration: const Duration(milliseconds: 200),
                     child: Icon(
                       [
-                        Icons.favorite,
                         Icons.check_circle,
                         Icons.access_time,
                         Icons.emoji_events,
@@ -151,7 +141,6 @@ class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
                     ),
                   ),
                   label: [
-                    'Favoritos',
                     'Jugados',
                     'Pendientes',
                     'Ranking'
@@ -164,7 +153,6 @@ class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildFavoritesList(),
                 _buildPlayedList(),
                 _buildPendingList(),
                 _buildRankingList(),
@@ -173,28 +161,6 @@ class _FavoritesPageRefactoredState extends State<FavoritesPageRefactored>
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildFavoritesList() {
-    if (_favorites.isEmpty) {
-      return Center(
-        child: Text(
-          'No hay elementos para mostrar.',
-          style: TextStyle(color: Colors.blueGrey.shade700),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      itemCount: _favorites.length,
-      itemBuilder: (context, index) {
-        final word = _favorites[index];
-        return FavoriteCard(
-          word: word,
-          onDelete: () => _deleteFavorite(word),
-        );
-      },
     );
   }
 

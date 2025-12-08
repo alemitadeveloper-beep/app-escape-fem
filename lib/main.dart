@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'firebase_options.dart';
 
 // Imports de la nueva arquitectura
 import 'features/escape_rooms/data/datasources/word_database.dart';
 import 'features/escape_rooms/presentation/pages/word_list_page_refactored.dart';
 import 'features/escape_rooms/presentation/pages/favorites_page_refactored.dart';
-import 'features/auth/presentation/pages/login_page_refactored.dart';
+import 'features/auth/presentation/pages/firebase_login_page.dart';
 import 'features/auth/domain/services/auth_service.dart';
 import 'features/achievements/presentation/pages/achievements_page.dart';
 import 'core/theme/theme.dart';
@@ -19,6 +22,12 @@ import 'debug_auth_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 🔥 Inicializar Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  print('🔥 Firebase inicializado correctamente');
 
   // 🔁 OPCIONAL: borrar la base de datos en desarrollo
   // await deleteDatabaseIfNeeded();
@@ -72,16 +81,37 @@ class MyApp extends StatelessWidget {
     final MaterialTheme materialTheme =
         MaterialTheme(ThemeData.light().textTheme);
 
-    // Usar el AuthService antiguo para la ruta inicial (sincronizado con AccountPage)
-    final initialRoute = old_auth.AuthService.isLoggedIn ? '/main' : '/login';
-    print('🚀 App starting - initialRoute: $initialRoute, isLoggedIn: ${old_auth.AuthService.isLoggedIn}');
-
     return MaterialApp(
       title: 'Escape Room App',
       theme: materialTheme.light(),
-      initialRoute: initialRoute,
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          // Mientras se verifica el estado de autenticación
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              backgroundColor: Color(0xFF000D17),
+              body: Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+            );
+          }
+
+          // Si hay un usuario autenticado, mostrar la navegación principal
+          if (snapshot.hasData && snapshot.data != null) {
+            print('🔥 Usuario autenticado: ${snapshot.data!.email}');
+            return const MainNavigation();
+          }
+
+          // Si no hay usuario autenticado, mostrar login
+          print('🔒 No hay usuario autenticado, mostrando login');
+          return const FirebaseLoginPage();
+        },
+      ),
       routes: {
-        '/login': (context) => const LoginPageRefactored(),
+        '/login': (context) => const FirebaseLoginPage(),
         '/main': (context) => const MainNavigation(),
         '/achievements': (context) => const AchievementsPage(),
         '/debug-auth': (context) => const DebugAuthPage(),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/genre_utils.dart';
 
-/// Widget reutilizable para mostrar un chip de género con color
+/// Widget reutilizable para mostrar un chip de género con icono y nombre
 class GenreChip extends StatelessWidget {
   final String genre;
   final bool filled;
@@ -15,19 +15,55 @@ class GenreChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = GenreUtils.getGenreColor(genre);
+    final imagePath = GenreUtils.getGenreImagePath(genre);
+    final icon = GenreUtils.getGenreIcon(genre);
 
-    return Chip(
-      label: Text(
-        genre,
-        style: TextStyle(
-          color: filled ? Colors.white : color,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: filled ? color.withAlpha(20) : Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: color.withAlpha(100),
+          width: 1.5,
         ),
       ),
-      backgroundColor: filled ? color : color.withAlpha(40),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: color.withAlpha(120)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Usar imagen si está disponible, sino usar icono
+          imagePath != null
+              ? Image.asset(
+                  imagePath,
+                  width: 16,
+                  height: 16,
+                  color: color,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Si la imagen no existe, usar el icono como fallback
+                    return Icon(
+                      icon,
+                      size: 16,
+                      color: color,
+                    );
+                  },
+                )
+              : Icon(
+                  icon,
+                  size: 16,
+                  color: color,
+                ),
+          const SizedBox(width: 5),
+          Text(
+            genre,
+            style: TextStyle(
+              fontSize: 10,
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

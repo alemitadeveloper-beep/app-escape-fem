@@ -4,13 +4,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService {
   static bool isLoggedIn = false;
   static String username = '';
+  static String avatarId = 'detective'; // Avatar por defecto
 
   // Inicializar el estado desde SharedPreferences
   static Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
     isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     username = prefs.getString('username') ?? '';
-    print('🔐 AuthService initialized - isLoggedIn: $isLoggedIn, username: $username');
+    avatarId = prefs.getString('avatarId') ?? 'detective';
+    print('🔐 AuthService initialized - isLoggedIn: $isLoggedIn, username: $username, avatar: $avatarId');
   }
 
   static Future<void> login(String email) async {
@@ -30,9 +32,16 @@ class AuthService {
     isLoggedIn = false;
     username = '';
 
-    // Limpiar SharedPreferences
+    // Limpiar SharedPreferences (pero mantener el avatar)
     await prefs.remove('isLoggedIn');
     await prefs.remove('username');
     await prefs.remove('email');
+  }
+
+  static Future<void> updateAvatar(String newAvatarId) async {
+    final prefs = await SharedPreferences.getInstance();
+    avatarId = newAvatarId;
+    await prefs.setString('avatarId', newAvatarId);
+    print('✅ Avatar actualizado a: $newAvatarId');
   }
 }

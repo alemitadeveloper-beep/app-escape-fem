@@ -10,9 +10,7 @@ enum AchievementType {
   globetrotter,     // Visita 10 provincias diferentes
   critic,           // Escribe 10 reseñas
   photographer,     // Agrega fotos a 5 reseñas
-  perfectionist,    // Da rating perfecto (10/10) a un escape room
   weeklyStreak,     // Juega un escape room cada semana por 4 semanas
-  collector,        // Marca 20 escape rooms como favoritos
   completionist,    // Completa todos los escape rooms de una provincia
 }
 
@@ -210,27 +208,6 @@ class Achievement {
         targetValue: 20,
       ),
 
-      // Logros de calidad
-      Achievement(
-        type: AchievementType.perfectionist,
-        id: 'perfectionist',
-        title: 'Perfeccionista',
-        description: 'Da rating perfecto (10/10 en todos los aspectos)',
-        emoji: '⭐',
-        tier: AchievementTier.gold,
-        targetValue: 1,
-      ),
-
-      // Logros de colección
-      Achievement(
-        type: AchievementType.collector,
-        id: 'collector',
-        title: 'Coleccionista',
-        description: 'Marca 20 escape rooms como favoritos',
-        emoji: '❤️',
-        tier: AchievementTier.silver,
-        targetValue: 20,
-      ),
     ];
   }
 }

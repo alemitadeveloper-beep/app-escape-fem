@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/word.dart';
+import '../../../../core/utils/parsing_utils.dart';
+import '../../../../core/utils/province_utils.dart';
 
 class WordDatabase {
   static final WordDatabase instance = WordDatabase._init();
@@ -22,7 +24,7 @@ class WordDatabase {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 4,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -42,7 +44,7 @@ class WordDatabase {
         isFavorite INTEGER NOT NULL DEFAULT 0,
         isPlayed INTEGER NOT NULL DEFAULT 0,
         isPending INTEGER NOT NULL DEFAULT 0,
-        empresa TEXT DEFAULT '',
+        empresa TEXT,
         review TEXT,
         photoPath TEXT,
         datePlayed TEXT,
@@ -53,7 +55,18 @@ class WordDatabase {
         ambientacionRating INTEGER,
         jugabilidadRating INTEGER,
         gameMasterRating INTEGER,
-        miedoRating INTEGER
+        miedoRating INTEGER,
+        precio TEXT,
+        jugadores TEXT,
+        duracion TEXT,
+        descripcion TEXT,
+        numJugadoresMin INTEGER,
+        numJugadoresMax INTEGER,
+        dificultad TEXT,
+        telefono TEXT,
+        email TEXT,
+        provincia TEXT,
+        imagenUrl TEXT
       )
     ''');
   }
@@ -61,6 +74,23 @@ class WordDatabase {
   Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute("ALTER TABLE words ADD COLUMN empresa TEXT DEFAULT ''");
+    }
+    if (oldVersion < 3) {
+      // Añadir nuevos campos en versión 3
+      await db.execute("ALTER TABLE words ADD COLUMN precio TEXT");
+      await db.execute("ALTER TABLE words ADD COLUMN jugadores TEXT");
+      await db.execute("ALTER TABLE words ADD COLUMN duracion TEXT");
+      await db.execute("ALTER TABLE words ADD COLUMN descripcion TEXT");
+      await db.execute("ALTER TABLE words ADD COLUMN numJugadoresMin INTEGER");
+      await db.execute("ALTER TABLE words ADD COLUMN numJugadoresMax INTEGER");
+      await db.execute("ALTER TABLE words ADD COLUMN dificultad TEXT");
+      await db.execute("ALTER TABLE words ADD COLUMN telefono TEXT");
+      await db.execute("ALTER TABLE words ADD COLUMN email TEXT");
+      await db.execute("ALTER TABLE words ADD COLUMN provincia TEXT");
+    }
+    if (oldVersion < 4) {
+      // Añadir campo imagenUrl en versión 4
+      await db.execute("ALTER TABLE words ADD COLUMN imagenUrl TEXT");
     }
   }
 
@@ -272,7 +302,17 @@ class WordDatabase {
             web: current.web.isEmpty ? w.web : current.web,
             latitud: (current.latitud == 0.0 ? w.latitud : current.latitud),
             longitud: (current.longitud == 0.0 ? w.longitud : current.longitud),
-            empresa: (w.empresa ?? '').isNotEmpty ? w.empresa : current.empresa,
+            empresa: (w.empresa != null && w.empresa!.isNotEmpty) ? w.empresa : current.empresa,
+            precio: (w.precio != null && w.precio!.isNotEmpty) ? w.precio : current.precio,
+            jugadores: (w.jugadores != null && w.jugadores!.isNotEmpty) ? w.jugadores : current.jugadores,
+            duracion: (w.duracion != null && w.duracion!.isNotEmpty) ? w.duracion : current.duracion,
+            descripcion: (w.descripcion != null && w.descripcion!.isNotEmpty) ? w.descripcion : current.descripcion,
+            numJugadoresMin: w.numJugadoresMin ?? current.numJugadoresMin,
+            numJugadoresMax: w.numJugadoresMax ?? current.numJugadoresMax,
+            dificultad: (w.dificultad != null && w.dificultad!.isNotEmpty) ? w.dificultad : current.dificultad,
+            telefono: (w.telefono != null && w.telefono!.isNotEmpty) ? w.telefono : current.telefono,
+            email: (w.email != null && w.email!.isNotEmpty) ? w.email : current.email,
+            provincia: (w.provincia != null && w.provincia!.isNotEmpty) ? w.provincia : current.provincia,
           );
 
           await txn.update('words', merged.toMap(),
@@ -291,47 +331,96 @@ class WordDatabase {
         await rootBundle.loadString('assets/escape_rooms_completo.json');
     final List<dynamic> data = jsonDecode(jsonString);
 
-    // --- ARREGLO A: normaliza web y deduce empresa de URL o del nombre ---
-    final List<Map<String, dynamic>> items = data.map((e) {
+    int filtrados = 0;
+
+    // --- Procesamiento mejorado con limpieza y parseo ---
+    final List<Map<String, dynamic>> items = [];
+
+    for (final e in data) {
       final m = Map<String, dynamic>.from(e);
 
-      m['text'] = (m['text'] ?? m['nombre'] ?? '').toString();
-      m['genero'] = (m['genero'] ?? '').toString();
-      m['ubicacion'] = (m['ubicacion'] ?? '').toString();
+      // Validar nombre (filtrar registros basura)
+      final nombre = (m['text'] ?? m['nombre'] ?? '').toString();
+      if (!ParsingUtils.isValidNombre(nombre)) {
+        filtrados++;
+        continue;
+      }
+
+      m['text'] = nombre;
+      m['genero'] = ParsingUtils.cleanGenero(m['genero']?.toString());
+      m['ubicacion'] = ParsingUtils.cleanUbicacion(m['ubicacion']?.toString());
       m['puntuacion'] = (m['puntuacion'] ?? '').toString();
 
-      // Normaliza web y trata "/" o "#" como vacío
-      var web = (m['web'] ?? '').toString().trim();
-      if (web == '/' || web == '#') web = '';
-      m['web'] = web;
+      // Limpiar web
+      final web = ParsingUtils.cleanWeb(m['web']?.toString());
+      m['web'] = web ?? '';
 
       // Coordenadas
+      double lat = 0.0;
+      double lon = 0.0;
+
       if (m['latitud'] is String) {
-        m['latitud'] = double.tryParse(m['latitud']) ?? 0.0;
-      } else if (m['latitud'] == null) {
-        m['latitud'] = 0.0;
-      }
-      if (m['longitud'] is String) {
-        m['longitud'] = double.tryParse(m['longitud']) ?? 0.0;
-      } else if (m['longitud'] == null) {
-        m['longitud'] = 0.0;
+        lat = double.tryParse(m['latitud']) ?? 0.0;
+      } else if (m['latitud'] != null) {
+        lat = (m['latitud'] as num).toDouble();
       }
 
-      // Empresa: si no viene y no hay web válida, intenta desde el nombre
+      if (m['longitud'] is String) {
+        lon = double.tryParse(m['longitud']) ?? 0.0;
+      } else if (m['longitud'] != null) {
+        lon = (m['longitud'] as num).toDouble();
+      }
+
+      m['latitud'] = lat;
+      m['longitud'] = lon;
+
+      // Empresa: deduce desde URL o nombre
       final currentEmpresa = (m['empresa'] ?? '').toString().trim();
       if (currentEmpresa.isEmpty) {
-        if (web.isNotEmpty) {
+        if (web != null && web.isNotEmpty) {
           m['empresa'] = _guessCompanyFromUrl(web);
         } else {
-          m['empresa'] = _guessCompanyFromNombre(m['text']);
+          m['empresa'] = _guessCompanyFromNombre(nombre);
         }
       }
 
-      return m;
-    }).toList();
+      // --- NUEVOS CAMPOS ---
+
+      // Parsear precio
+      m['precio'] = ParsingUtils.normalizePrecio(m['precio']?.toString());
+
+      // Parsear jugadores
+      final jugadoresStr = m['jugadores']?.toString();
+      m['jugadores'] = jugadoresStr;
+      final jugadoresMap = ParsingUtils.parseJugadores(jugadoresStr);
+      m['numJugadoresMin'] = jugadoresMap['min'];
+      m['numJugadoresMax'] = jugadoresMap['max'];
+
+      // Parsear duración
+      m['duracion'] = ParsingUtils.normalizeDuracion(m['duracion']?.toString());
+
+      // Limpiar descripción
+      m['descripcion'] = ParsingUtils.cleanDescripcion(m['descripcion']?.toString());
+
+      // Teléfono y email
+      m['telefono'] = ParsingUtils.cleanPhone(m['telefono']?.toString());
+      m['email'] = ParsingUtils.isValidEmail(m['email']?.toString())
+          ? m['email']?.toString()
+          : null;
+
+      // Obtener provincia desde coordenadas o ubicación
+      m['provincia'] = ProvinceUtils.getProvincia(
+        lat != 0.0 ? lat : null,
+        lon != 0.0 ? lon : null,
+        m['ubicacion']?.toString(),
+      );
+
+      items.add(m);
+    }
 
     final int changes = await upsertFromJsonList(items);
     print('✅ Importación scrapeada: $changes filas insertadas/actualizadas');
+    print('🗑️ Registros filtrados (inválidos): $filtrados');
   }
 
   // ---- Helpers privados ----
@@ -424,6 +513,118 @@ class WordDatabase {
       limit: limit,
     );
     return maps.map((m) => Word.fromMap(m)).toList();
+  }
+
+  // ---------- NUEVOS MÉTODOS DE CONSULTA ----------
+
+  /// Obtiene escape rooms filtrados por provincia
+  Future<List<Word>> getByProvincia(String provincia) async {
+    final db = await database;
+    final maps = await db.query(
+      'words',
+      where: 'provincia = ?',
+      whereArgs: [provincia],
+    );
+    return maps.map((m) => Word.fromMap(m)).toList();
+  }
+
+  /// Obtiene todas las provincias únicas disponibles
+  Future<List<String>> getProvinciasDisponibles() async {
+    final db = await database;
+    final result = await db.rawQuery(
+      "SELECT DISTINCT provincia FROM words WHERE provincia IS NOT NULL AND provincia != '' ORDER BY provincia"
+    );
+    return result.map((r) => r['provincia'] as String).toList();
+  }
+
+  /// Obtiene escape rooms con descripción
+  Future<List<Word>> getWithDescripcion() async {
+    final db = await database;
+    final maps = await db.query(
+      'words',
+      where: "descripcion IS NOT NULL AND descripcion != ''",
+    );
+    return maps.map((m) => Word.fromMap(m)).toList();
+  }
+
+  /// Filtra escape rooms por número de jugadores
+  Future<List<Word>> getByNumJugadores(int numJugadores) async {
+    final db = await database;
+    final maps = await db.query(
+      'words',
+      where: '(numJugadoresMin IS NULL OR numJugadoresMin <= ?) AND (numJugadoresMax IS NULL OR numJugadoresMax >= ?)',
+      whereArgs: [numJugadores, numJugadores],
+    );
+    return maps.map((m) => Word.fromMap(m)).toList();
+  }
+
+  /// Actualiza la provincia para todos los registros que tengan coordenadas
+  Future<int> backfillProvinciaFromCoordinates() async {
+    final db = await database;
+    final rows = await db.query(
+      'words',
+      columns: ['id', 'latitud', 'longitud', 'ubicacion', 'provincia'],
+      where: "provincia IS NULL OR provincia = ''",
+    );
+
+    int updates = 0;
+    for (final r in rows) {
+      final int id = r['id'] as int;
+      final double? lat = r['latitud'] as double?;
+      final double? lon = r['longitud'] as double?;
+      final String? ubicacion = r['ubicacion'] as String?;
+
+      final provincia = ProvinceUtils.getProvincia(lat, lon, ubicacion);
+
+      if (provincia != null && provincia.isNotEmpty) {
+        await db.update(
+          'words',
+          {'provincia': provincia},
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+        updates++;
+      }
+    }
+    return updates;
+  }
+
+  /// Obtiene estadísticas de la base de datos
+  Future<Map<String, dynamic>> getStats() async {
+    final db = await database;
+
+    final total = Sqflite.firstIntValue(
+      await db.rawQuery('SELECT COUNT(*) FROM words'),
+    ) ?? 0;
+
+    final conDescripcion = Sqflite.firstIntValue(
+      await db.rawQuery("SELECT COUNT(*) FROM words WHERE descripcion IS NOT NULL AND descripcion != ''"),
+    ) ?? 0;
+
+    final conProvincia = Sqflite.firstIntValue(
+      await db.rawQuery("SELECT COUNT(*) FROM words WHERE provincia IS NOT NULL AND provincia != ''"),
+    ) ?? 0;
+
+    final conPrecio = Sqflite.firstIntValue(
+      await db.rawQuery("SELECT COUNT(*) FROM words WHERE precio IS NOT NULL AND precio != ''"),
+    ) ?? 0;
+
+    final conJugadores = Sqflite.firstIntValue(
+      await db.rawQuery("SELECT COUNT(*) FROM words WHERE numJugadoresMin IS NOT NULL"),
+    ) ?? 0;
+
+    final conEmpresa = Sqflite.firstIntValue(
+      await db.rawQuery("SELECT COUNT(*) FROM words WHERE empresa IS NOT NULL AND empresa != ''"),
+    ) ?? 0;
+
+    return {
+      'total': total,
+      'conDescripcion': conDescripcion,
+      'conProvincia': conProvincia,
+      'conPrecio': conPrecio,
+      'conJugadores': conJugadores,
+      'conEmpresa': conEmpresa,
+    };
   }
 
   String _companyFromHost(String host) {

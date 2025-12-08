@@ -21,12 +21,11 @@ class AchievementService {
 
     // Obtener datos necesarios
     final playedRooms = await _escapeRoomRepository.getPlayed();
-    final favorites = await _escapeRoomRepository.getFavorites();
 
     for (final achievement in allAchievements) {
       if (achievement.isUnlocked) continue; // Ya desbloqueado
 
-      final progress = await _calculateProgress(achievement.type, playedRooms, favorites);
+      final progress = await _calculateProgress(achievement.type, playedRooms);
 
       // Actualizar progreso
       if (progress != achievement.currentProgress) {
@@ -54,7 +53,6 @@ class AchievementService {
   Future<int> _calculateProgress(
     AchievementType type,
     List<Word> playedRooms,
-    List<Word> favorites,
   ) async {
     switch (type) {
       // Logros de cantidad jugada
@@ -78,28 +76,22 @@ class AchievementService {
 
       // Logros de reseñas
       case AchievementType.critic:
-        return playedRooms.where((w) =>
-          w.review != null && w.review!.isNotEmpty
-        ).length;
+        // Contar solo escape rooms con reseña completa (al menos un rating)
+        return playedRooms.where((w) {
+          final hasReview = w.review != null && w.review!.isNotEmpty;
+          final hasRating = w.personalRating != null ||
+                           w.historiaRating != null ||
+                           w.ambientacionRating != null ||
+                           w.jugabilidadRating != null ||
+                           w.gameMasterRating != null ||
+                           w.miedoRating != null;
+          return hasReview && hasRating;
+        }).length;
 
       case AchievementType.photographer:
         return playedRooms.where((w) =>
           w.photoPath != null && w.photoPath!.isNotEmpty
         ).length;
-
-      // Logro de perfeccionista
-      case AchievementType.perfectionist:
-        return playedRooms.where((w) {
-          return w.historiaRating == 10 &&
-                 w.ambientacionRating == 10 &&
-                 w.jugabilidadRating == 10 &&
-                 w.gameMasterRating == 10 &&
-                 w.miedoRating == 10;
-        }).length;
-
-      // Logro de coleccionista
-      case AchievementType.collector:
-        return favorites.length;
 
       case AchievementType.weeklyStreak:
         return _calculateWeeklyStreak(playedRooms);

@@ -412,28 +412,49 @@ class _FilterModalState extends State<FilterModal> {
           children: widget.availableGenres.map((genre) {
             final selected = _selectedGenres.contains(genre);
             final color = GenreUtils.getGenreColor(genre);
-            return FilterChip(
-              label: Text(
-                genre,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: selected ? Colors.white : color),
-              ),
-              selected: selected,
-              selectedColor: color,
-              backgroundColor: color.withAlpha(40),
-              showCheckmark: false,
-              onSelected: (val) {
+            final icon = GenreUtils.getGenreIcon(genre);
+
+            return InkWell(
+              onTap: () {
                 setState(() {
-                  if (val) {
-                    _selectedGenres.add(genre);
-                  } else {
+                  if (selected) {
                     _selectedGenres.remove(genre);
+                  } else {
+                    _selectedGenres.add(genre);
                   }
                 });
               },
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(color: color.withAlpha(120), width: 1.5),
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: selected ? color : color.withAlpha(20),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: selected ? color : color.withAlpha(100),
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 18,
+                      color: selected ? Colors.white : color,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      genre,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: selected ? Colors.white : color,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }).toList(),

@@ -19,7 +19,20 @@ class Word {
   final int? jugabilidadRating;
   final int? gameMasterRating;
   final int? miedoRating;
-  final String? empresa; // Nuevo campo
+  final String? empresa;
+
+  // Nuevos campos del scraping
+  final String? precio;
+  final String? jugadores;
+  final String? duracion;
+  final String? descripcion;
+  final int? numJugadoresMin;
+  final int? numJugadoresMax;
+  final String? dificultad;
+  final String? telefono;
+  final String? email;
+  final String? provincia; // Provincia extraída de coordenadas o ubicación
+  final String? imagenUrl; // URL de imagen del escape room o empresa
 
   Word({
     this.id,
@@ -43,23 +56,46 @@ class Word {
     this.gameMasterRating,
     this.miedoRating,
     this.empresa,
+    this.precio,
+    this.jugadores,
+    this.duracion,
+    this.descripcion,
+    this.numJugadoresMin,
+    this.numJugadoresMax,
+    this.dificultad,
+    this.telefono,
+    this.email,
+    this.provincia,
+    this.imagenUrl,
   });
 
   factory Word.fromMap(Map<String, dynamic> map) {
-    // 🔹 Función local corregida (sin guion bajo)
-    final toDouble = (value) {
+    double toDouble(dynamic value) {
       if (value is String) return double.tryParse(value) ?? 0.0;
       if (value is num) return value.toDouble();
       return 0.0;
-    };
+    }
+
+    String? cleanString(dynamic value) {
+      if (value == null) return null;
+      final str = value.toString().trim();
+      if (str.isEmpty ||
+          str == 'No disponible' ||
+          str == '/' ||
+          str == '#' ||
+          str.toLowerCase() == 'null') {
+        return null;
+      }
+      return str;
+    }
 
     return Word(
       id: map['id'],
-      text: map['text'] ?? map['nombre'] ?? '',
-      genero: map['genero'] ?? '',
-      ubicacion: map['ubicacion'] ?? '',
-      puntuacion: map['puntuacion'] ?? '',
-      web: map['web'] ?? '',
+      text: cleanString(map['text'] ?? map['nombre']) ?? '',
+      genero: cleanString(map['genero']) ?? '',
+      ubicacion: cleanString(map['ubicacion']) ?? '',
+      puntuacion: cleanString(map['puntuacion']) ?? '',
+      web: cleanString(map['web']) ?? '',
       latitud: toDouble(map['latitud']),
       longitud: toDouble(map['longitud']),
       isFavorite: map['isFavorite'] == 1,
@@ -76,7 +112,18 @@ class Word {
       jugabilidadRating: map['jugabilidadRating'],
       gameMasterRating: map['gameMasterRating'],
       miedoRating: map['miedoRating'],
-      empresa: map['empresa'], // Nuevo
+      empresa: cleanString(map['empresa']),
+      precio: cleanString(map['precio']),
+      jugadores: cleanString(map['jugadores']),
+      duracion: cleanString(map['duracion']),
+      descripcion: cleanString(map['descripcion']),
+      numJugadoresMin: map['numJugadoresMin'],
+      numJugadoresMax: map['numJugadoresMax'],
+      dificultad: cleanString(map['dificultad']),
+      telefono: cleanString(map['telefono']),
+      email: cleanString(map['email']),
+      provincia: cleanString(map['provincia']),
+      imagenUrl: cleanString(map['imagenUrl']),
     );
   }
 
@@ -104,7 +151,18 @@ class Word {
       'jugabilidadRating': jugabilidadRating,
       'gameMasterRating': gameMasterRating,
       'miedoRating': miedoRating,
-      'empresa': empresa, // Nuevo
+      'empresa': empresa,
+      'precio': precio,
+      'jugadores': jugadores,
+      'duracion': duracion,
+      'descripcion': descripcion,
+      'numJugadoresMin': numJugadoresMin,
+      'numJugadoresMax': numJugadoresMax,
+      'dificultad': dificultad,
+      'telefono': telefono,
+      'email': email,
+      'provincia': provincia,
+      'imagenUrl': imagenUrl,
     };
   }
 
@@ -130,6 +188,17 @@ class Word {
     int? gameMasterRating,
     int? miedoRating,
     String? empresa,
+    String? precio,
+    String? jugadores,
+    String? duracion,
+    String? descripcion,
+    int? numJugadoresMin,
+    int? numJugadoresMax,
+    String? dificultad,
+    String? telefono,
+    String? email,
+    String? provincia,
+    String? imagenUrl,
   }) {
     return Word(
       id: id ?? this.id,
@@ -153,6 +222,17 @@ class Word {
       gameMasterRating: gameMasterRating ?? this.gameMasterRating,
       miedoRating: miedoRating ?? this.miedoRating,
       empresa: empresa ?? this.empresa,
+      precio: precio ?? this.precio,
+      jugadores: jugadores ?? this.jugadores,
+      duracion: duracion ?? this.duracion,
+      descripcion: descripcion ?? this.descripcion,
+      numJugadoresMin: numJugadoresMin ?? this.numJugadoresMin,
+      numJugadoresMax: numJugadoresMax ?? this.numJugadoresMax,
+      dificultad: dificultad ?? this.dificultad,
+      telefono: telefono ?? this.telefono,
+      email: email ?? this.email,
+      provincia: provincia ?? this.provincia,
+      imagenUrl: imagenUrl ?? this.imagenUrl,
     );
   }
 }

@@ -107,11 +107,6 @@ class _WordListPageRefactoredState extends State<WordListPageRefactored> {
     setState(() => _filteredWords = sorted);
   }
 
-  Future<void> _toggleFavorite(Word word) async {
-    await _repository.toggleFavorite(word.id!, !word.isFavorite);
-    await _loadWords();
-  }
-
   Future<void> _togglePlayed(Word word) async {
     final newPlayedValue = !word.isPlayed;
     await _repository.togglePlayed(word.id!, newPlayedValue);
@@ -235,7 +230,6 @@ class _WordListPageRefactoredState extends State<WordListPageRefactored> {
                     Expanded(
                       child: EscapeRoomListView(
                         words: _filteredWords,
-                        onToggleFavorite: _toggleFavorite,
                         onTogglePlayed: _togglePlayed,
                         onTogglePending: _togglePending,
                       ),
