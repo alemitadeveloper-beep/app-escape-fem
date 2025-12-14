@@ -1,10 +1,24 @@
 import '../models/word.dart';
 import '../datasources/word_database.dart';
+import '../datasources/firestore_user_data_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// Repository para acceso a datos de escape rooms
 /// Abstrae la capa de base de datos y proporciona una API limpia
+/// Sincroniza datos entre SQLite (local) y Firestore (cloud)
 class EscapeRoomRepository {
   final WordDatabase _database = WordDatabase.instance;
+  FirestoreUserDataService? _firestoreService;
+
+  /// Inicializar servicio de Firestore si el usuario está autenticado
+  Future<void> _ensureFirestoreService() async {
+    final user = FirebaseAuth.instance.currentUser;
+    print('🔍 DEBUG: FirebaseAuth.currentUser = ${user?.email ?? "NULL"}');
+    if (user != null && _firestoreService == null) {
+      _firestoreService = FirestoreUserDataService(userId: user.uid);
+      print('✅ FirestoreUserDataService inicializado para usuario: ${user.email}');
+    }
+  }
 
   // ===== Operaciones de lectura =====
 
@@ -37,17 +51,68 @@ class EscapeRoomRepository {
 
   /// Marca/desmarca un escape room como favorito
   Future<void> toggleFavorite(int id, bool isFavorite) async {
+    // Actualizar en SQLite (local)
     await _database.toggleFavorite(id, isFavorite);
+
+    // Sincronizar con Firestore (cloud)
+    await _ensureFirestoreService();
+    print('🔍 DEBUG: _firestoreService is ${_firestoreService != null ? "initialized" : "NULL"}');
+    if (_firestoreService != null) {
+      try {
+        print('🔄 Sincronizando favorito $id con Firestore (isFavorite: $isFavorite)...');
+        if (isFavorite) {
+          await _firestoreService!.addFavorite(id);
+          print('✅ Favorito $id sincronizado con Firestore');
+        } else {
+          await _firestoreService!.removeFavorite(id);
+          print('✅ Favorito $id eliminado de Firestore');
+        }
+      } catch (e) {
+        print('⚠️ Error al sincronizar favorito con Firestore: $e');
+        // Continuar sin fallar - los datos locales ya están actualizados
+      }
+    } else {
+      print('⚠️ No se puede sincronizar con Firestore: usuario no autenticado');
+    }
   }
 
   /// Marca/desmarca un escape room como jugado
   Future<void> togglePlayed(int id, bool isPlayed) async {
+    // Actualizar en SQLite (local)
     await _database.togglePlayed(id, isPlayed);
+
+    // Sincronizar con Firestore (cloud)
+    await _ensureFirestoreService();
+    if (_firestoreService != null) {
+      try {
+        if (!isPlayed) {
+          await _firestoreService!.removeFromPlayed(id);
+        }
+        // Si isPlayed = true, se sincronizará cuando se agregue la review
+      } catch (e) {
+        print('⚠️ Error al sincronizar jugado con Firestore: $e');
+      }
+    }
   }
 
   /// Marca/desmarca un escape room como pendiente
   Future<void> togglePending(int id, bool isPending) async {
+    // Actualizar en SQLite (local)
     await _database.togglePending(id, isPending);
+
+    // Sincronizar con Firestore (cloud)
+    await _ensureFirestoreService();
+    if (_firestoreService != null) {
+      try {
+        if (isPending) {
+          await _firestoreService!.addToPending(id);
+        } else {
+          await _firestoreService!.removeFromPending(id);
+        }
+      } catch (e) {
+        print('⚠️ Error al sincronizar pendiente con Firestore: $e');
+      }
+    }
   }
 
   /// Actualiza la reseña de un escape room jugado
@@ -63,6 +128,9 @@ class EscapeRoomRepository {
     required int gameMasterRating,
     required int miedoRating,
   }) async {
+    print('🔍 updateReview llamado para escape room $id');
+
+    // Actualizar en SQLite (local)
     await _database.updateReview(
       id,
       datePlayed,
@@ -75,6 +143,32 @@ class EscapeRoomRepository {
       gameMasterRating,
       miedoRating,
     );
+    print('✅ Review actualizada en SQLite para escape room $id');
+
+    // Sincronizar con Firestore (cloud)
+    await _ensureFirestoreService();
+    print('🔍 DEBUG: _firestoreService is ${_firestoreService != null ? "initialized" : "NULL"}');
+    if (_firestoreService != null) {
+      try {
+        print('🔄 Sincronizando review de escape room $id con Firestore...');
+        await _firestoreService!.markAsPlayed(
+          escapeRoomId: id,
+          datePlayed: datePlayed.toIso8601String(),
+          personalRating: personalRating,
+          review: review,
+          historiaRating: historiaRating,
+          ambientacionRating: ambientacionRating,
+          jugabilidadRating: jugabilidadRating,
+          gameMasterRating: gameMasterRating,
+          miedoRating: miedoRating,
+        );
+        print('✅ Review de escape room $id sincronizada con Firestore');
+      } catch (e) {
+        print('⚠️ Error al sincronizar review con Firestore: $e');
+      }
+    } else {
+      print('⚠️ No se puede sincronizar review con Firestore: usuario no autenticado');
+    }
   }
 
   /// Marca un escape room como jugado con fecha

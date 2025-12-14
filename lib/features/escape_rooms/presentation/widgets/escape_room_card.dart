@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/models/word.dart';
 import '../../../../core/widgets/star_rating.dart';
-import '../../../../core/widgets/genre_chip.dart';
 import '../../../../core/widgets/played_badge.dart';
 import '../../../../core/utils/genre_utils.dart';
 import '../../../../core/utils/rating_utils.dart';
@@ -37,40 +36,52 @@ class EscapeRoomCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       color: Colors.white,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      elevation: 3,
+      shadowColor: Colors.black26,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: BorderSide(color: Colors.blue.shade100),
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Stack(
-        children: [
-          // Contenido
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Imagen
-              if (word.imagenUrl != null && word.imagenUrl!.isNotEmpty)
-                Container(
-                  width: 100,
-                  height: 140,
-                  margin: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.grey.shade200,
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: () {
+          // Puedes agregar navegación a página de detalles aquí si quieres
+        },
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Imagen principal (más grande)
+                if (word.imagenUrl != null && word.imagenUrl!.isNotEmpty)
+                  Container(
+                    width: double.infinity,
+                    height: 180,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                    ),
                     child: Image.network(
                       word.imagenUrl!,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           color: Colors.grey.shade200,
-                          child: Icon(
-                            Icons.image_not_supported,
-                            color: Colors.grey.shade400,
-                            size: 40,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.image_not_supported,
+                                color: Colors.grey.shade400,
+                                size: 48,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Sin imagen',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
                           ),
                         );
                       },
@@ -84,249 +95,276 @@ class EscapeRoomCard extends StatelessWidget {
                                   ? loadingProgress.cumulativeBytesLoaded /
                                       loadingProgress.expectedTotalBytes!
                                   : null,
+                              strokeWidth: 2,
                             ),
                           ),
                         );
                       },
                     ),
                   ),
-                ),
 
-              // Información
-              Expanded(
-                child: Padding(
+                // Contenido de información
+                Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Título
+                      // Título más grande y destacado
                       Text(
                         word.text,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Colors.blueGrey.shade900,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Color(0xFF001F54),
+                          height: 1.2,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
 
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
 
-                      // Empresa (sin link)
-                      if (word.empresa != null && word.empresa!.isNotEmpty)
+                      // Rating destacado
+                      if (rating > 0)
                         Row(
                           children: [
-                            Icon(Icons.business,
-                              color: Colors.blueGrey.shade600,
-                              size: 14
-                            ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                word.empresa!,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.blueGrey.shade700,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-
-                      const SizedBox(height: 6),
-
-                      // Chips de géneros
-                      if (genres.isNotEmpty)
-                        GenreChipList(genres: genres, filled: true),
-
-                      const SizedBox(height: 6),
-
-                      // Descripción breve
-                      if (word.descripcion != null && word.descripcion!.isNotEmpty)
-                        Text(
-                          word.descripcion!,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.blueGrey.shade700,
-                            height: 1.3,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-
-                      const SizedBox(height: 6),
-
-                      // Duración y Jugadores
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 4,
-                        children: [
-                          if (word.duracion != null && word.duracion!.isNotEmpty)
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.access_time,
-                                  color: Colors.blueGrey.shade600,
-                                  size: 14
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  word.duracion!,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.blueGrey.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          if (word.jugadores != null && word.jugadores!.isNotEmpty)
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.people,
-                                  color: Colors.blueGrey.shade600,
-                                  size: 14
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  word.jugadores!.replaceAll('De ', '').replaceAll(' jugadores', ''),
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: Colors.blueGrey.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 6),
-
-                      // Ubicación
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Icon(Icons.place, color: Colors.blueGrey, size: 14),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              word.ubicacion,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.blueGrey.shade700,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 6),
-
-                      // Estrellas + número
-                      Row(
-                        children: [
-                          StarRating(rating: rating),
-                          if (rating > 0) ...[
-                            const SizedBox(width: 6),
+                            StarRating(rating: rating),
+                            const SizedBox(width: 8),
                             Text(
                               rating.toStringAsFixed(1),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: Color(0xFF001F54),
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '/ 5.0',
                               style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                                color: Colors.blueGrey.shade900,
+                                fontSize: 14,
+                                color: Colors.grey.shade600,
                               ),
                             ),
                           ],
-                        ],
-                      ),
+                        ),
 
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 12),
 
-                      // Botón Abrir web (solo si URL válida)
-                      if (hasValidWeb)
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: ElevatedButton.icon(
-                            onPressed: () => _openWeb(context, word.web),
-                            icon: const Icon(Icons.open_in_browser,
-                                color: Color(0xFF001F54), size: 14),
-                            label: const Text('Abrir web',
-                                style: TextStyle(color: Color(0xFF001F54), fontSize: 11)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue.shade100,
-                              foregroundColor: Colors.blue.shade900,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 6),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
+                      // Empresa
+                      if (word.empresa != null && word.empresa!.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.blue.shade200),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.business,
+                                color: Colors.blue.shade700,
+                                size: 16,
                               ),
-                              elevation: 0,
-                            ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Text(
+                                  word.empresa!,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.blue.shade900,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
 
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 12),
 
-                      // Acciones: Jugado / Pendiente
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          // Jugado
-                          IconButton(
-                            tooltip: word.isPlayed
-                                ? 'Marcado como jugado'
-                                : 'Marcar como jugado',
-                            icon: Icon(
-                              word.isPlayed
-                                  ? Icons.check_circle
-                                  : Icons.radio_button_unchecked,
-                              color: word.isPlayed
-                                  ? Colors.blue.shade700
-                                  : Colors.blueGrey.shade400,
-                              size: 20,
+                      // Chips de géneros (más visibles)
+                      if (genres.isNotEmpty)
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: genres.take(3).map((genre) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.purple.shade50,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.purple.shade200),
+                              ),
+                              child: Text(
+                                genre,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.purple.shade700,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+
+                      const SizedBox(height: 12),
+
+                      // Información práctica en cards
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Column(
+                          children: [
+                            // Duración
+                            if (word.duracion != null && word.duracion!.isNotEmpty)
+                              _InfoRow(
+                                icon: Icons.access_time,
+                                label: 'Duración',
+                                value: word.duracion!,
+                                iconColor: Colors.orange.shade600,
+                              ),
+
+                            if (word.duracion != null && word.duracion!.isNotEmpty &&
+                                word.jugadores != null && word.jugadores!.isNotEmpty)
+                              Divider(height: 16, color: Colors.grey.shade300),
+
+                            // Jugadores
+                            if (word.jugadores != null && word.jugadores!.isNotEmpty)
+                              _InfoRow(
+                                icon: Icons.people,
+                                label: 'Jugadores',
+                                value: word.jugadores!
+                                    .replaceAll('De ', '')
+                                    .replaceAll(' jugadores', ''),
+                                iconColor: Colors.green.shade600,
+                              ),
+
+                            if ((word.duracion != null && word.duracion!.isNotEmpty) ||
+                                (word.jugadores != null && word.jugadores!.isNotEmpty))
+                              Divider(height: 16, color: Colors.grey.shade300),
+
+                            // Ubicación
+                            _InfoRow(
+                              icon: Icons.place,
+                              label: 'Ubicación',
+                              value: word.ubicacion,
+                              iconColor: Colors.red.shade600,
                             ),
-                            onPressed: onTogglePlayed,
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Botones de acción
+                      Row(
+                        children: [
+                          // Botón web
+                          if (hasValidWeb)
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () => _openWeb(context, word.web),
+                                icon: const Icon(Icons.open_in_browser, size: 18),
+                                label: const Text(
+                                  'Ver sitio web',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF001F54),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 2,
+                                ),
+                              ),
+                            ),
+
+                          const SizedBox(width: 8),
+
+                          // Botón Jugado
+                          Container(
+                            decoration: BoxDecoration(
+                              color: word.isPlayed
+                                  ? Colors.blue.shade50
+                                  : Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: word.isPlayed
+                                    ? Colors.blue.shade300
+                                    : Colors.grey.shade300,
+                              ),
+                            ),
+                            child: IconButton(
+                              tooltip: word.isPlayed ? 'Ya jugado' : 'Marcar como jugado',
+                              icon: Icon(
+                                word.isPlayed ? Icons.check_circle : Icons.circle_outlined,
+                                color: word.isPlayed
+                                    ? Colors.blue.shade700
+                                    : Colors.grey.shade600,
+                                size: 24,
+                              ),
+                              onPressed: onTogglePlayed,
+                            ),
                           ),
 
-                          // Pendiente
-                          IconButton(
-                            tooltip: word.isPending
-                                ? 'Marcado como pendiente'
-                                : 'Marcar como pendiente',
-                            icon: Icon(
-                              word.isPending
-                                  ? Icons.schedule
-                                  : Icons.schedule_outlined,
+                          const SizedBox(width: 8),
+
+                          // Botón Pendiente
+                          Container(
+                            decoration: BoxDecoration(
                               color: word.isPending
-                                  ? Colors.orange
-                                  : Colors.blueGrey.shade400,
-                              size: 18,
+                                  ? Colors.orange.shade50
+                                  : Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: word.isPending
+                                    ? Colors.orange.shade300
+                                    : Colors.grey.shade300,
+                              ),
                             ),
-                            onPressed: onTogglePending,
+                            child: IconButton(
+                              tooltip: word.isPending ? 'En pendientes' : 'Agregar a pendientes',
+                              icon: Icon(
+                                word.isPending ? Icons.schedule : Icons.schedule_outlined,
+                                color: word.isPending
+                                    ? Colors.orange.shade700
+                                    : Colors.grey.shade600,
+                                size: 24,
+                              ),
+                              onPressed: onTogglePending,
+                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
-
-          // Badge "Jugado" en la esquina
-          if (word.isPlayed)
-            const Positioned(
-              top: 0,
-              right: 0,
-              child: PlayedBadge(),
+              ],
             ),
-        ],
+
+            // Badge "Jugado" en la esquina superior derecha
+            if (word.isPlayed)
+              const Positioned(
+                top: 12,
+                right: 12,
+                child: PlayedBadge(),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -348,5 +386,56 @@ class EscapeRoomCard extends StatelessWidget {
         const SnackBar(content: Text('No se pudo abrir el enlace')),
       );
     }
+  }
+}
+
+/// Widget auxiliar para mostrar filas de información con icono y texto
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color iconColor;
+
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, color: iconColor, size: 20),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF001F54),
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

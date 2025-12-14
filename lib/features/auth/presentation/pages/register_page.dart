@@ -34,7 +34,9 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> _register() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    if (mounted) {
+      setState(() => _isLoading = true);
+    }
 
     try {
       final result = await _authService.registerWithEmailAndPassword(
@@ -46,18 +48,35 @@ class _RegisterPageState extends State<RegisterPage> {
 
       if (result != null && mounted) {
         print('✅ Registro exitoso: ${result.user?.email}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('¡Cuenta creada exitosamente!'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
-          ),
-        );
-        // El StreamBuilder en main.dart detectará automáticamente el login
-        // y navegará a MainNavigation (ya no necesitamos volver al login)
+
+        // Cerrar sesión inmediatamente después del registro
+        await _authService.signOut();
+
+        // Resetear loading antes de mostrar el mensaje y navegar
+        if (mounted) {
+          setState(() => _isLoading = false);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('¡Cuenta creada exitosamente! Por favor inicia sesión'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+
+        // Esperar un momento para que el usuario vea el mensaje
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        // Volver a la página de login
+        if (mounted) {
+          Navigator.pop(context);
+        }
       }
     } catch (e) {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
 
       // Extraer mensaje de error más amigable
       String errorMessage = 'Error al crear cuenta';
@@ -74,7 +93,6 @@ class _RegisterPageState extends State<RegisterPage> {
         // Si es error de keychain, ignorarlo completamente
         print('⚠️ Error de keychain ignorado durante registro (no afecta funcionalidad)');
         // No mostrar mensaje de error, la cuenta se creó correctamente
-        setState(() => _isLoading = false);
         return;
       } else {
         errorMessage = e.toString();

@@ -1,0 +1,148 @@
+2025-12-14 12:33:41,058 - WARNING - ⚠️ No se pudo cargar la BD existente: unable to open database file
+2025-12-14 12:33:41,058 - INFO - ℹ️ Se continuará sin verificación de duplicados en BD
+2025-12-14 12:33:41,058 - INFO - ======================================================================
+2025-12-14 12:33:41,058 - INFO - 🚀 INICIANDO SCRAPING MULTI-FUENTE DE ESCAPE ROOMS
+2025-12-14 12:33:41,058 - INFO - ======================================================================
+2025-12-14 12:33:41,703 - INFO - 
+🌐 Iniciando escaperoomlover.com...
+2025-12-14 12:33:41,703 - INFO - 🔍 Scraping escaperoomlover.com...
+2025-12-14 12:33:41,703 - INFO - 🏙️ Scraping ciudad: madrid
+2025-12-14 12:33:51,474 - INFO - 🏙️ Scraping ciudad: barcelona
+2025-12-14 12:33:57,397 - INFO - 🏙️ Scraping ciudad: valencia
+2025-12-14 12:34:03,341 - INFO - 🏙️ Scraping ciudad: sevilla
+2025-12-14 12:34:09,193 - INFO - 🏙️ Scraping ciudad: zaragoza
+2025-12-14 12:34:14,949 - INFO - 🏙️ Scraping ciudad: bilbao
+2025-12-14 12:34:20,677 - INFO - 🏙️ Scraping ciudad: granada
+2025-12-14 12:34:26,397 - INFO - 📋 Encontrados 0 enlaces en escaperoomlover.com
+2025-12-14 12:34:26,397 - INFO - ✅ escaperoomlover.com: 0 nuevos escape rooms
+2025-12-14 12:34:26,397 - INFO - 
+🌐 Iniciando todoescaperooms.com...
+2025-12-14 12:34:26,397 - INFO - 🔍 Scraping todoescaperooms.com...
+2025-12-14 12:34:30,429 - INFO - 📋 Encontradas 94 salas en todoescaperooms.com
+2025-12-14 12:34:30,478 - INFO - ✅ todoescaperooms.com: 0 nuevos escape rooms
+2025-12-14 12:34:30,478 - INFO - 
+🌐 Iniciando escaperoos.es...
+2025-12-14 12:34:30,478 - INFO - 🔍 Scraping escaperoos.es...
+2025-12-14 12:34:32,729 - INFO - 📋 Encontradas 138 provincias en escaperoos.es
+2025-12-14 12:34:57,432 - INFO - 📋 Total de 90 salas encontradas
+2025-12-14 12:34:57,432 - INFO - [1/90] Visitando https://escaperoos.es/escape-room/la-caja-de-pandora_e88584
+2025-12-14 12:34:59,648 - INFO - ✅ Nuevo: La Caja de Pandora
+2025-12-14 12:35:00,654 - INFO - [2/90] Visitando https://escaperoos.es/escape-room/ellebanna_e59949
+2025-12-14 12:35:03,374 - INFO - ✅ Nuevo: EllebannA
+2025-12-14 12:35:04,379 - INFO - [3/90] Visitando https://escaperoos.es/escape-room/delorean-van_e71007
+2025-12-14 12:35:06,546 - INFO - ✅ Nuevo: Delorean Van
+2025-12-14 12:35:07,552 - INFO - [4/90] Visitando https://escaperoos.es/escape-room/sofia_e69372
+2025-12-14 12:35:09,518 - INFO - ✅ Nuevo: Sofía
+2025-12-14 12:35:10,524 - INFO - [5/90] Visitando https://escaperoos.es/escape-room/protocolo-stranger_e59191
+2025-12-14 12:35:12,371 - INFO - ✅ Nuevo: Protocolo Stranger
+2025-12-14 12:35:13,376 - INFO - [6/90] Visitando https://escaperoos.es/escape-room/regresion-santo-grial_e66051
+2025-12-14 12:35:15,214 - INFO - ✅ Nuevo: Regresión Santo Grial
+2025-12-14 12:35:16,220 - INFO - [7/90] Visitando https://escaperoos.es/escape-room/el-conjuro_e88550
+2025-12-14 12:35:18,121 - INFO - ✅ Nuevo: El Conjuro
+2025-12-14 12:35:19,126 - INFO - [8/90] Visitando https://escaperoos.es/escape-room/horror-movie_e73354
+2025-12-14 12:35:20,939 - INFO - ✅ Nuevo: Horror Movie
+2025-12-14 12:35:21,944 - INFO - [9/90] Visitando https://escaperoos.es/escape-room/saw-experience_e37225
+2025-12-14 12:35:24,458 - INFO - ✅ Nuevo: Saw Experience
+2025-12-14 12:35:25,463 - INFO - [10/90] Visitando https://escaperoos.es/escape-room/gangsters-dinero-armas-y-alcohol_e1733
+2025-12-14 12:35:27,740 - INFO - ✅ Nuevo: Gangsters: Dinero, armas y alcohol
+2025-12-14 12:35:28,741 - INFO - [11/90] Visitando https://escaperoos.es/escape-room/academia-operacion-anselm-ferrer_e60389
+2025-12-14 12:35:30,416 - INFO - ✅ Nuevo: Academia: Operación Anselm Ferrer
+2025-12-14 12:35:31,422 - INFO - [12/90] Visitando https://escaperoos.es/escape-room/la-mazmorra-la-ultima-partida_e1783
+2025-12-14 12:35:33,978 - INFO - ✅ Nuevo: La Mazmorra: la última partida
+2025-12-14 12:35:34,983 - INFO - [13/90] Visitando https://escaperoos.es/escape-room/mision-templaria_e38968
+2025-12-14 12:35:36,623 - INFO - ✅ Nuevo: Mision Templaria
+2025-12-14 12:35:37,629 - INFO - [14/90] Visitando https://escaperoos.es/escape-room/la-gran-cena_e22387
+2025-12-14 12:35:39,264 - INFO - ✅ Nuevo: La Gran Cena
+2025-12-14 12:35:40,270 - INFO - [15/90] Visitando https://escaperoos.es/escape-room/sherlock-holmes-contra-el-diablo-londinense_e1602
+2025-12-14 12:35:42,310 - INFO - ✅ Nuevo: Sherlock Holmes contra el Diablo Londinense
+2025-12-14 12:35:43,314 - INFO - [16/90] Visitando https://escaperoos.es/escape-room/departamento-policia-los-mallos_e60077
+2025-12-14 12:35:45,057 - INFO - ✅ Nuevo: Departamento Policia Los Mallos
+2025-12-14 12:35:46,062 - INFO - [17/90] Visitando https://escaperoos.es/escape-room/secuestrados_e88223
+2025-12-14 12:35:47,733 - INFO - ✅ Nuevo: Secuestrados
+2025-12-14 12:35:48,736 - INFO - [18/90] Visitando https://escaperoos.es/escape-room/incomodos-invitados_e51282
+2025-12-14 12:35:50,336 - INFO - ✅ Nuevo: Incómodos Invitados
+2025-12-14 12:35:51,341 - INFO - [19/90] Visitando https://escaperoos.es/escape-room/prisioneros-de-alkaban_e1279
+2025-12-14 12:35:53,710 - INFO - ✅ Nuevo: Prisioneros de Alkaban
+2025-12-14 12:35:54,715 - INFO - [20/90] Visitando https://escaperoos.es/escape-room/dementia_e80366
+2025-12-14 12:35:56,422 - INFO - ✅ Nuevo: Dementia
+2025-12-14 12:35:57,427 - INFO - [21/90] Visitando https://escaperoos.es/escape-room/robo-en-el-museo-castroblanco_e33228
+2025-12-14 12:35:59,510 - INFO - ✅ Nuevo: Robo en el Museo
+2025-12-14 12:36:00,515 - INFO - [22/90] Visitando https://escaperoos.es/escape-room/el-jardin_e59575
+2025-12-14 12:36:03,388 - INFO - ✅ Nuevo: El Jardín
+2025-12-14 12:36:04,393 - INFO - [23/90] Visitando https://escaperoos.es/escape-room/la-cena-del-dr-delarge_e50595
+2025-12-14 12:36:06,307 - INFO - ✅ Nuevo: La Cena del Dr. Delarge
+2025-12-14 12:36:07,312 - INFO - [24/90] Visitando https://escaperoos.es/escape-room/carol-s-nightmare-el-origen_e53664
+2025-12-14 12:36:10,015 - INFO - ✅ Nuevo: Carol's Nightmare: El Origen
+2025-12-14 12:36:11,020 - INFO - [25/90] Visitando https://escaperoos.es/escape-room/invasion-alien_e38603
+2025-12-14 12:36:12,783 - INFO - ✅ Nuevo: Invasión Alien
+2025-12-14 12:36:13,788 - INFO - [26/90] Visitando https://escaperoos.es/escape-room/el-club-gatsby_e57776
+2025-12-14 12:36:15,393 - INFO - ✅ Nuevo: El Club Gatsby
+2025-12-14 12:36:16,398 - INFO - [27/90] Visitando https://escaperoos.es/escape-room/mision-gaudi_e1034
+2025-12-14 12:36:18,828 - INFO - ✅ Nuevo: Misión Gaudí
+2025-12-14 12:36:19,833 - INFO - [28/90] Visitando https://escaperoos.es/escape-room/la-orden-de-los-cinco-poderes_e45547
+2025-12-14 12:36:21,757 - INFO - ✅ Nuevo: La Orden de los Cinco Poderes
+2025-12-14 12:36:22,762 - INFO - [29/90] Visitando https://escaperoos.es/escape-room/el-imperio-romano_e63138
+2025-12-14 12:36:25,087 - INFO - ✅ Nuevo: El Imperio Romano
+2025-12-14 12:36:26,092 - INFO - [30/90] Visitando https://escaperoos.es/escape-room/ultima-esperanza_e75072
+2025-12-14 12:36:28,087 - INFO - ✅ Nuevo: Última Esperanza
+2025-12-14 12:36:29,092 - INFO - [31/90] Visitando https://escaperoos.es/escape-room/regresion-kids-el-tesoro-de-dragut_e81949
+2025-12-14 12:36:31,025 - INFO - ✅ Nuevo: Regresión Kids: El Tesoro de Dragut
+2025-12-14 12:36:32,030 - INFO - [32/90] Visitando https://escaperoos.es/escape-room/atrapados-en-el-sotano_e89821
+2025-12-14 12:36:34,097 - INFO - ✅ Nuevo: Atrapados en el Sótano
+2025-12-14 12:36:35,103 - INFO - [33/90] Visitando https://escaperoos.es/escape-room/el-wendigo_e85018
+2025-12-14 12:36:37,386 - INFO - ✅ Nuevo: El Wendigo
+2025-12-14 12:36:38,390 - INFO - [34/90] Visitando https://escaperoos.es/escape-room/el-bunker-secreto_e25895
+2025-12-14 12:36:40,131 - INFO - ✅ Nuevo: El Búnker Secreto
+2025-12-14 12:36:41,136 - INFO - [35/90] Visitando https://escaperoos.es/escape-room/la-busqueda-del-tesoro_e79550
+2025-12-14 12:36:42,813 - INFO - ✅ Nuevo: La Búsqueda del Tesoro
+2025-12-14 12:36:43,818 - INFO - [36/90] Visitando https://escaperoos.es/escape-room/nave-ulysses_e1752
+2025-12-14 12:36:46,256 - INFO - ✅ Nuevo: Nave Ulysses
+2025-12-14 12:36:47,261 - INFO - [37/90] Visitando https://escaperoos.es/escape-room/atrapa-al-capo_e26595
+2025-12-14 12:36:48,812 - INFO - ✅ Nuevo: Atrapa al Capo
+2025-12-14 12:36:49,818 - INFO - [38/90] Visitando https://escaperoos.es/escape-room/fardos_e76126
+2025-12-14 12:36:51,608 - INFO - ✅ Nuevo: Fardos
+2025-12-14 12:36:52,613 - INFO - [39/90] Visitando https://escaperoos.es/escape-room/el-diario-de-takara_e36310
+2025-12-14 12:36:54,894 - INFO - ✅ Nuevo: El Diario de Takara
+2025-12-14 12:36:55,900 - INFO - [40/90] Visitando https://escaperoos.es/escape-room/indiana-y-el-idolo-maldito_e72880
+2025-12-14 12:36:57,753 - INFO - ✅ Nuevo: Indiana y el Ídolo Maldito
+2025-12-14 12:36:58,759 - INFO - [41/90] Visitando https://escaperoos.es/escape-room/el-refugio_e11494
+2025-12-14 12:37:00,702 - INFO - ✅ Nuevo: El Refugio
+2025-12-14 12:37:01,707 - INFO - [42/90] Visitando https://escaperoos.es/escape-room/el-misterio-de-nefertiti_e37429
+2025-12-14 12:37:03,763 - INFO - ✅ Nuevo: El misterio de Nefertiti
+2025-12-14 12:37:04,768 - INFO - [43/90] Visitando https://escaperoos.es/escape-room/11s_e1374
+2025-12-14 12:37:07,787 - INFO - ✅ Nuevo: 11S
+2025-12-14 12:37:08,792 - INFO - [44/90] Visitando https://escaperoos.es/escape-room/la-subasta_e30925
+2025-12-14 12:37:10,725 - INFO - ✅ Nuevo: La Subasta
+2025-12-14 12:37:11,731 - INFO - [45/90] Visitando https://escaperoos.es/escape-room/el-asesino-de-keylock-city_e80726
+2025-12-14 12:37:14,255 - INFO - ✅ Nuevo: El Asesino de Keylock City
+2025-12-14 12:37:15,261 - INFO - [46/90] Visitando https://escaperoos.es/escape-room/el-orfanato_e30957
+2025-12-14 12:37:18,072 - INFO - ✅ Nuevo: El Orfanato
+2025-12-14 12:37:19,077 - INFO - [47/90] Visitando https://escaperoos.es/escape-room/el-ultimo-robo_e46915
+2025-12-14 12:37:21,532 - INFO - ✅ Nuevo: El Último Robo
+2025-12-14 12:37:22,537 - INFO - [48/90] Visitando https://escaperoos.es/escape-room/mision-s-w-a-t_e61019
+2025-12-14 12:37:25,144 - INFO - ✅ Nuevo: Misión S.W.A.T
+2025-12-14 12:37:26,146 - INFO - [49/90] Visitando https://escaperoos.es/escape-room/apophis_e89156
+2025-12-14 12:37:28,417 - INFO - ✅ Nuevo: Apophis
+2025-12-14 12:37:29,422 - INFO - [50/90] Visitando https://escaperoos.es/escape-room/la-llorona_e19605
+2025-12-14 12:37:31,856 - INFO - ✅ Nuevo: La Llorona
+2025-12-14 12:37:32,861 - INFO - ✅ escaperoos.es: 50 nuevos escape rooms
+2025-12-14 12:37:32,861 - INFO - 
+🌐 Iniciando escapeup.es...
+2025-12-14 12:37:32,861 - INFO - 🔍 Scraping escapeup.es...
+2025-12-14 12:37:33,911 - INFO - 📋 Encontradas 1 salas en escapeup.es
+2025-12-14 12:37:33,911 - INFO - [1/1] Visitando https://escapeup.es/escape-room/
+2025-12-14 12:37:35,183 - INFO - ✅ Nuevo: Empresas de Escape Rooms
+2025-12-14 12:37:36,188 - INFO - ✅ escapeup.es: 1 nuevos escape rooms
+2025-12-14 12:37:36,258 - INFO - 
+======================================================================
+2025-12-14 12:37:36,258 - INFO - 📊 RESUMEN DE SCRAPING
+2025-12-14 12:37:36,258 - INFO - ======================================================================
+2025-12-14 12:37:36,258 - INFO - ✅ Total scrapeados: 51
+2025-12-14 12:37:36,258 - INFO - ⏭️ Duplicados omitidos: 0
+2025-12-14 12:37:36,258 - INFO - 🆕 Nuevos escape rooms: 51
+2025-12-14 12:37:36,258 - INFO - ❌ Errores: 0
+2025-12-14 12:37:36,259 - INFO - 
+💾 Exportado a: /Users/alejandra/escape_room_application/scripts/nuevos_escape_rooms.json
+2025-12-14 12:37:36,259 - INFO - 📁 Total de registros: 51
+2025-12-14 12:37:36,259 - INFO - 
+🎉 ¡Scraping completado exitosamente!

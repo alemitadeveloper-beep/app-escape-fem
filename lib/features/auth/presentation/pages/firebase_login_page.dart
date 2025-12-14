@@ -28,7 +28,9 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    if (mounted) {
+      setState(() => _isLoading = true);
+    }
 
     try {
       final result = await _authService.signInWithEmailAndPassword(
@@ -38,11 +40,17 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
 
       if (result != null) {
         print('✅ Login exitoso: ${result.user?.email}');
+        // Resetear loading antes de que el StreamBuilder cambie la página
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
         // El StreamBuilder en main.dart detectará automáticamente el cambio
         // y navegará a MainNavigation
       }
     } catch (e) {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
 
       // Extraer mensaje de error más amigable
       String errorMessage = 'Error al iniciar sesión';
@@ -59,14 +67,17 @@ class _FirebaseLoginPageState extends State<FirebaseLoginPage> {
         errorMessage = 'Demasiados intentos. Intenta más tarde';
       } else if (e.toString().contains('network-request-failed')) {
         errorMessage = 'Error de conexión. Verifica tu internet';
-      } else if (!e.toString().contains('keychain')) {
-        // Solo mostrar errores que NO sean del keychain
-        errorMessage = e.toString();
-      } else {
-        // Si es error de keychain, no hacer nada (ignorarlo)
+      } else if (e.toString().contains('keychain')) {
+        // Si es error de keychain, ignorarlo completamente
         print('⚠️ Error de keychain ignorado (no afecta funcionalidad)');
-        setState(() => _isLoading = false);
+        // No mostrar mensaje de error, el login se completó correctamente
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
         return;
+      } else {
+        // Cualquier otro error
+        errorMessage = e.toString();
       }
 
       if (mounted) {

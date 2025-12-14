@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../features/escape_rooms/data/datasources/firestore_user_data_service.dart';
+import '../features/escape_rooms/data/datasources/word_database.dart';
 
 /// Servicio de autenticación usando Firebase Authentication
 /// Maneja login, registro, logout y gestión de sesiones
@@ -17,7 +19,17 @@ class FirebaseAuthService {
   bool get isLoggedIn => currentUser != null;
 
   // Username del usuario actual
-  String get username => currentUser?.displayName ?? currentUser?.email?.split('@').first ?? '';
+  String get username {
+    // Primero intentar con displayName
+    if (currentUser?.displayName != null && currentUser!.displayName!.isNotEmpty) {
+      return currentUser!.displayName!;
+    }
+    // Si no hay displayName, usar la parte del email antes del @
+    if (currentUser?.email != null) {
+      return currentUser!.email!.split('@').first;
+    }
+    return '';
+  }
 
   // Email del usuario actual
   String? get email => currentUser?.email;
@@ -54,14 +66,20 @@ class FirebaseAuthService {
       // Actualizar el display name
       await userCredential.user?.updateDisplayName(username);
 
-      // Crear documento del usuario en Firestore
-      await _firestore.collection('users').doc(userCredential.user!.uid).set({
-        'username': username,
-        'email': email,
-        'avatarId': avatarId,
-        'createdAt': FieldValue.serverTimestamp(),
-        'lastLogin': FieldValue.serverTimestamp(),
-      });
+      // Intentar crear documento del usuario en Firestore (opcional)
+      try {
+        await _firestore.collection('users').doc(userCredential.user!.uid).set({
+          'username': username,
+          'email': email,
+          'avatarId': avatarId,
+          'createdAt': FieldValue.serverTimestamp(),
+          'lastLogin': FieldValue.serverTimestamp(),
+        });
+        print('✅ Datos de usuario guardados en Firestore');
+      } catch (firestoreError) {
+        print('⚠️ No se pudieron guardar datos en Firestore (esto no afecta el registro): $firestoreError');
+        // Continuar sin fallar - el usuario ya está registrado en Auth
+      }
 
       print('✅ Usuario registrado: $username ($email)');
       return userCredential;
@@ -85,10 +103,16 @@ class FirebaseAuthService {
         password: password,
       );
 
-      // Actualizar última vez que inició sesión
-      await _firestore.collection('users').doc(userCredential.user!.uid).update({
-        'lastLogin': FieldValue.serverTimestamp(),
-      });
+      // Intentar actualizar última vez que inició sesión (opcional)
+      try {
+        await _firestore.collection('users').doc(userCredential.user!.uid).update({
+          'lastLogin': FieldValue.serverTimestamp(),
+        });
+        print('✅ Última sesión actualizada en Firestore');
+      } catch (firestoreError) {
+        print('⚠️ No se pudo actualizar lastLogin en Firestore (esto no afecta el login): $firestoreError');
+        // Continuar sin fallar - el usuario ya está logueado
+      }
 
       print('✅ Usuario logueado: ${userCredential.user?.email}');
       return userCredential;
@@ -196,6 +220,25 @@ class FirebaseAuthService {
     } catch (e) {
       print('❌ Error al obtener datos del usuario: $e');
       return null;
+    }
+  }
+
+  /// Sincronizar datos locales con Firestore después del login
+  Future<void> syncLocalDataToFirestore() async {
+    if (uid == null) return;
+
+    try {
+      print('🔄 Iniciando sincronización de datos locales a Firestore...');
+
+      final firestoreService = FirestoreUserDataService(userId: uid!);
+      final allWords = await WordDatabase.instance.readAllWords();
+
+      await firestoreService.syncFromSQLite(allWords);
+
+      print('✅ Sincronización completada');
+    } catch (e) {
+      print('⚠️ Error al sincronizar datos: $e');
+      // No lanzar error - la sincronización es opcional
     }
   }
 

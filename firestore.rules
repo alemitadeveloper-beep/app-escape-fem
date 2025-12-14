@@ -1,0 +1,159 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Función helper para verificar si el usuario está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Función helper para verificar si el usuario es el dueño del documento
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ============= USUARIOS =============
+
+    match /users/{userId} {
+      // Permitir lectura si estás autenticado
+      allow read: if isAuthenticated();
+      // Permitir escritura solo si eres el dueño
+      allow write: if isOwner(userId);
+
+      // Subcolección de favoritos
+      match /favorites/{favoriteId} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(userId);
+      }
+
+      // Subcolección de escape rooms jugados
+      match /played/{playedId} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(userId);
+      }
+
+      // Subcolección de escape rooms pendientes
+      match /pending/{pendingId} {
+        allow read: if isAuthenticated();
+        allow write: if isOwner(userId);
+      }
+    }
+
+    // ============= GRUPOS =============
+
+    match /groups/{groupId} {
+      // Función para verificar si el usuario es admin del grupo
+      function isGroupAdmin() {
+        return isAuthenticated() &&
+               get(/databases/$(database)/documents/groups/$(groupId)).data.adminUid == request.auth.uid;
+      }
+
+      // Función para verificar si el usuario es miembro del grupo
+      function isGroupMember() {
+        return isAuthenticated() &&
+               exists(/databases/$(database)/documents/groups/$(groupId)/members/$(request.auth.uid));
+      }
+
+      // Permitir lectura si eres miembro o si el grupo es público
+      allow read: if isAuthenticated() &&
+                     (isGroupMember() || resource.data.isPublic == true);
+
+      // Permitir crear grupos si estás autenticado
+      allow create: if isAuthenticated() &&
+                       request.resource.data.adminUid == request.auth.uid;
+
+      // Permitir actualizar solo si eres admin
+      allow update: if isGroupAdmin();
+
+      // Permitir eliminar solo si eres admin
+      allow delete: if isGroupAdmin();
+
+      // Subcolección de miembros
+      match /members/{memberId} {
+        // Permitir lectura si eres miembro del grupo
+        allow read: if isGroupMember();
+
+        // Permitir agregar miembros si eres admin
+        allow create: if isGroupAdmin();
+
+        // Permitir eliminar miembros si eres admin o te estás eliminando a ti mismo
+        allow delete: if isGroupAdmin() || isOwner(memberId);
+
+        // No permitir actualizar miembros (solo crear y eliminar)
+        allow update: if false;
+      }
+
+      // Subcolección de sesiones
+      match /sessions/{sessionId} {
+        // Permitir lectura si eres miembro del grupo
+        allow read: if isGroupMember();
+
+        // Permitir crear y actualizar sesiones si eres miembro
+        allow create, update: if isGroupMember();
+
+        // Permitir eliminar sesiones si eres admin
+        allow delete: if isGroupAdmin();
+
+        // Subcolección de valoraciones de sesión
+        match /ratings/{ratingId} {
+          // Permitir lectura si eres miembro
+          allow read: if isGroupMember();
+
+          // Permitir escribir tu propia valoración
+          allow write: if isGroupMember() && isOwner(ratingId);
+        }
+
+        // Subcolección de fotos de sesión
+        match /photos/{photoId} {
+          // Permitir lectura si eres miembro
+          allow read: if isGroupMember();
+
+          // Permitir crear fotos si eres miembro
+          allow create: if isGroupMember();
+
+          // Permitir eliminar solo tus propias fotos o si eres admin
+          allow delete: if isGroupMember() &&
+                           (resource.data.uploadedBy == request.auth.uid || isGroupAdmin());
+
+          // No permitir actualizar fotos
+          allow update: if false;
+        }
+      }
+    }
+
+    // ============= CATÁLOGO DE ESCAPE ROOMS (PÚBLICO) =============
+
+    match /escapeRooms/{escapeRoomId} {
+      // Permitir lectura a todos los usuarios autenticados
+      allow read: if isAuthenticated();
+
+      // TEMPORAL: Permitir escritura para migración inicial
+      // TODO: Cambiar a 'if false' después de la migración
+      allow write: if isAuthenticated();
+    }
+
+    // ============= INVITACIONES =============
+
+    match /invitations/{invitationId} {
+      // Permitir lectura si eres el remitente o el destinatario
+      allow read: if isAuthenticated() &&
+                     (resource.data.senderUid == request.auth.uid ||
+                      resource.data.recipientUid == request.auth.uid);
+
+      // Permitir crear invitaciones si estás autenticado y eres el remitente
+      allow create: if isAuthenticated() &&
+                       request.resource.data.senderUid == request.auth.uid;
+
+      // Permitir actualizar solo si eres el destinatario (para aceptar/rechazar)
+      allow update: if isAuthenticated() &&
+                       resource.data.recipientUid == request.auth.uid &&
+                       request.resource.data.status in ['accepted', 'declined'];
+
+      // Permitir eliminar si eres el remitente o el destinatario
+      allow delete: if isAuthenticated() &&
+                       (resource.data.senderUid == request.auth.uid ||
+                        resource.data.recipientUid == request.auth.uid);
+    }
+  }
+}
