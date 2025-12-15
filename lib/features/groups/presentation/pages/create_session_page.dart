@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/services/group_service.dart';
-import '../../../../services/auth_service.dart';
+import '../../utils/auth_helper.dart';
 import '../../../../db/word_database.dart';
 import '../../../../models/word.dart';
 
@@ -72,7 +72,7 @@ class _CreateSessionPageState extends State<CreateSessionPage> {
         escapeRoomName: _selectedEscapeRoom!.text,
         scheduledDate: _selectedDate,
         notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
-        requestingUsername: AuthService.username,
+        requestingUsername: AuthHelper.getCurrentUsername(),
       );
 
       if (mounted) {

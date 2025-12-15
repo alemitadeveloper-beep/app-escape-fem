@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/services/group_service.dart';
-import '../../../../services/auth_service.dart';
+import '../../utils/auth_helper.dart';
 
 class CreateGroupPage extends StatefulWidget {
   const CreateGroupPage({super.key});
@@ -29,13 +29,23 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   Future<void> _createGroup() async {
     if (!_formKey.currentState!.validate()) return;
 
+    if (!AuthHelper.isAuthenticated()) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Debes iniciar sesión para crear un grupo')),
+        );
+      }
+      return;
+    }
+
     setState(() => _isCreating = true);
 
     try {
+      final username = AuthHelper.getCurrentUsername();
       await _groupService.createGroup(
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
-        adminUsername: AuthService.username,
+        adminUsername: username,
         routeName: _routeNameController.text.trim().isEmpty
             ? null
             : _routeNameController.text.trim(),

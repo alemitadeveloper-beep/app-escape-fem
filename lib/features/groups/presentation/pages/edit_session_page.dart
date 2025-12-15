@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/services/group_service.dart';
 import '../../data/models/group_session.dart';
-import '../../../../services/auth_service.dart';
+import '../../utils/auth_helper.dart';
 import '../../../../db/word_database.dart';
 import '../../../../models/word.dart';
 
@@ -87,7 +87,7 @@ class _EditSessionPageState extends State<EditSessionPage> {
 
       final success = await _groupService.updateSession(
         updatedSession,
-        AuthService.username,
+        AuthHelper.getCurrentUsername(),
       );
 
       if (mounted) {

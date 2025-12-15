@@ -37,10 +37,14 @@ class EscapeRoomCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       color: Colors.white,
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      elevation: 3,
-      shadowColor: Colors.black26,
+      elevation: 2,
+      shadowColor: Colors.black12,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: const Color(0xFF001F54).withValues(alpha: 0.15),
+          width: 2,
+        ),
       ),
       child: InkWell(
         onTap: () {
@@ -51,57 +55,21 @@ class EscapeRoomCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Imagen principal (más grande)
-                if (word.imagenUrl != null && word.imagenUrl!.isNotEmpty)
-                  Container(
-                    width: double.infinity,
-                    height: 180,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                    ),
-                    child: Image.network(
-                      word.imagenUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey.shade200,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.image_not_supported,
-                                color: Colors.grey.shade400,
-                                size: 48,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Sin imagen',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: Colors.grey.shade200,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                              strokeWidth: 2,
-                            ),
-                          ),
-                        );
-                      },
+                // Header con gradiente decorativo (sin imagen)
+                Container(
+                  width: double.infinity,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        const Color(0xFF001F54),
+                        const Color(0xFF003D82),
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
                     ),
                   ),
+                ),
 
                 // Contenido de información
                 Padding(
@@ -213,6 +181,22 @@ class EscapeRoomCard extends StatelessWidget {
                         ),
 
                       const SizedBox(height: 12),
+
+                      // Descripción
+                      if (word.descripcion != null && word.descripcion!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Text(
+                            word.descripcion!,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade700,
+                              height: 1.4,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
 
                       // Información práctica en cards
                       Container(

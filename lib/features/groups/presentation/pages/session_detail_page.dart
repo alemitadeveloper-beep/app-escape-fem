@@ -5,7 +5,7 @@ import '../../domain/services/group_service.dart';
 import '../../data/models/group_session.dart';
 import '../../data/models/session_rating.dart';
 import '../../data/models/session_photo.dart';
-import '../../../../services/auth_service.dart';
+import '../../utils/auth_helper.dart';
 
 class SessionDetailPage extends StatefulWidget {
   final int sessionId;
@@ -54,7 +54,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> with SingleTicker
       final ratings = await _groupService.getSessionRatings(widget.sessionId);
       final photos = await _groupService.getSessionPhotos(widget.sessionId);
       final avgRating = await _groupService.getSessionAverageRating(widget.sessionId);
-      final myRating = await _groupService.getUserRating(widget.sessionId, AuthService.username);
+      final myRating = await _groupService.getUserRating(widget.sessionId, AuthHelper.getCurrentUsername());
 
       setState(() {
         _session = session;
@@ -77,7 +77,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> with SingleTicker
   Future<void> _markAsCompleted() async {
     final success = await _groupService.markSessionCompleted(
       widget.sessionId,
-      AuthService.username,
+      AuthHelper.getCurrentUsername(),
     );
 
     if (success) {
@@ -137,7 +137,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> with SingleTicker
       if (caption != null) {
         final success = await _groupService.addPhoto(
           sessionId: widget.sessionId,
-          username: AuthService.username,
+          username: AuthHelper.getCurrentUsername(),
           photoPath: image.path,
           caption: caption.isEmpty ? null : caption,
         );
@@ -350,7 +350,7 @@ class _SessionDetailPageState extends State<SessionDetailPage> with SingleTicker
       padding: const EdgeInsets.all(16),
       itemBuilder: (context, index) {
         final rating = _ratings[index];
-        final isMyRating = rating.username == AuthService.username;
+        final isMyRating = rating.username == AuthHelper.getCurrentUsername();
 
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
@@ -635,7 +635,7 @@ class _RatingDialogState extends State<_RatingDialog> {
 
     final success = await _groupService.rateSession(
       sessionId: widget.sessionId,
-      username: AuthService.username,
+      username: AuthHelper.getCurrentUsername(),
       overallRating: _overallRating,
       historiaRating: _historiaRating,
       ambientacionRating: _ambientacionRating,

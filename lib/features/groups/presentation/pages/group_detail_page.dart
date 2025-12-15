@@ -3,7 +3,7 @@ import '../../domain/services/group_service.dart';
 import '../../data/models/group.dart';
 import '../../data/models/group_member.dart';
 import '../../data/models/group_session.dart';
-import '../../../../services/auth_service.dart';
+import '../../utils/auth_helper.dart';
 import 'create_session_page.dart';
 import 'session_detail_page.dart';
 import 'invite_members_page.dart';
@@ -57,7 +57,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> with SingleTickerProv
         _members = members;
         _sessions = sessions;
         _ranking = ranking;
-        _isAdmin = group?.adminUsername == AuthService.username;
+        _isAdmin = group?.adminUsername == AuthHelper.getCurrentUsername();
         _isLoading = false;
       });
     } catch (e) {
@@ -91,7 +91,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> with SingleTickerProv
     );
 
     if (confirm == true && mounted) {
-      final success = await _groupService.leaveGroup(widget.groupId, AuthService.username);
+      final success = await _groupService.leaveGroup(widget.groupId, AuthHelper.getCurrentUsername());
       if (success && mounted) {
         Navigator.pop(context);
       } else if (mounted) {
@@ -388,7 +388,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> with SingleTickerProv
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemBuilder: (context, index) {
               final member = _members[index];
-              final isCurrentUser = member.username == AuthService.username;
+              final isCurrentUser = member.username == AuthHelper.getCurrentUsername();
               final isMemberAdmin = member.isAdmin;
 
               return Card(

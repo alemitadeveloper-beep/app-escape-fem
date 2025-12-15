@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/services/group_service.dart';
 import '../../data/models/group.dart';
 import '../../data/models/group_member.dart';
-import '../../../../services/auth_service.dart';
+import '../../utils/auth_helper.dart';
 
 class InviteMembersPage extends StatefulWidget {
   final int groupId;
@@ -88,7 +88,7 @@ class _InviteMembersPageState extends State<InviteMembersPage> {
       final success = await _groupService.sendInvitation(
         groupId: widget.groupId,
         recipientUsername: username,
-        senderUsername: AuthService.username,
+        senderUsername: AuthHelper.getCurrentUsername(),
         message: _messageController.text.trim().isEmpty
             ? null
             : _messageController.text.trim(),

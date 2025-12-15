@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/services/group_service.dart';
 import '../../data/models/group.dart';
-import '../../../../services/auth_service.dart';
+import '../../utils/auth_helper.dart';
 import 'group_detail_page.dart';
 import 'create_group_page.dart';
 import 'invitations_page.dart';
@@ -31,9 +31,15 @@ class _GroupsPageState extends State<GroupsPage> {
     setState(() => _isLoading = true);
 
     try {
-      final myGroups = await _groupService.getUserGroups(AuthService.username);
+      if (!AuthHelper.isAuthenticated()) {
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      final username = AuthHelper.getCurrentUsername();
+      final myGroups = await _groupService.getUserGroups(username);
       final allGroups = await _groupService.getAllGroups();
-      final invitationsCount = await _groupService.getPendingInvitationsCount(AuthService.username);
+      final invitationsCount = await _groupService.getPendingInvitationsCount(username);
 
       setState(() {
         _myGroups = myGroups;
@@ -52,7 +58,10 @@ class _GroupsPageState extends State<GroupsPage> {
   }
 
   Future<void> _joinGroup(EscapeGroup group) async {
-    final success = await _groupService.joinGroup(group.id!, AuthService.username);
+    if (!AuthHelper.isAuthenticated()) return;
+
+    final username = AuthHelper.getCurrentUsername();
+    final success = await _groupService.joinGroup(group.id!, username);
 
     if (mounted) {
       if (success) {
@@ -243,7 +252,8 @@ class _GroupsPageState extends State<GroupsPage> {
   }
 
   Widget _buildGroupCard(EscapeGroup group, {required bool isMember}) {
-    final isAdmin = group.adminUsername == AuthService.username;
+    final username = AuthHelper.getCurrentUsername();
+    final isAdmin = group.adminUsername == username;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),

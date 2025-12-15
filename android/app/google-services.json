@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "546983429964",
+    "project_id": "escape-fem-app",
+    "storage_bucket": "escape-fem-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:546983429964:android:7d312fecdb0d6f45caf1e9",
+        "android_client_info": {
+          "package_name": "com.escape_room_application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5_zwy06AmkFIkjMUL-zJAVP5xmFXGjbQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

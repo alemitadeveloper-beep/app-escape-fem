@@ -29,32 +29,6 @@ void main() async {
   );
   print('🔥 Firebase inicializado correctamente');
 
-  // 🔁 OPCIONAL: borrar la base de datos en desarrollo
-  // await deleteDatabaseIfNeeded();
-
-  // Inicializar base de datos
-  await WordDatabase.instance.seedDatabaseFromJson();
-
-  // (UNA VEZ) Rellenar empresa de las filas existentes
-  final updated = await WordDatabase.instance.backfillEmpresaFromExisting();
-  print('✅ Empresa backfilled en $updated registros');
-
-  // (OPCIONAL una vez): fusionar con el JSON scrapeado si ya lo tienes en assets
-  await WordDatabase.instance.importEscapesFromScrapedJson();
-
-  // 🔎 DEBUG: verificar campo 'empresa' en BBDD
-  try {
-    final n = await WordDatabase.instance.countConEmpresa();
-    print('👉 Registros con empresa: $n');
-
-    final faltan = await WordDatabase.instance.getSinEmpresa(limit: 5);
-    for (final w in faltan) {
-      print('⚠️ Sin empresa → ${w.text} | ${w.web}');
-    }
-  } catch (e) {
-    print('⚠️ Debug empresa falló: $e');
-  }
-
   // Inicializar AuthService nuevo (refactorizado)
   final authService = AuthService();
   await authService.initialize();
@@ -62,7 +36,43 @@ void main() async {
   // Inicializar AuthService antiguo (para AccountPage)
   await old_auth.AuthService.initialize();
 
+  // 🚀 Lanzar la app INMEDIATAMENTE
   runApp(MyApp(authService: authService));
+
+  // ⏳ Cargar base de datos EN SEGUNDO PLANO (no bloquea la UI)
+  _initializeDatabaseInBackground();
+}
+
+/// Inicializa la base de datos en segundo plano sin bloquear la UI
+Future<void> _initializeDatabaseInBackground() async {
+  try {
+    print('📦 Iniciando carga de base de datos en segundo plano...');
+
+    // Inicializar base de datos
+    await WordDatabase.instance.seedDatabaseFromJson();
+    print('✅ Base de datos inicializada');
+
+    // (UNA VEZ) Rellenar empresa de las filas existentes
+    final updated = await WordDatabase.instance.backfillEmpresaFromExisting();
+    print('✅ Empresa backfilled en $updated registros');
+
+    // (OPCIONAL una vez): fusionar con el JSON scrapeado si ya lo tienes en assets
+    await WordDatabase.instance.importEscapesFromScrapedJson();
+    print('✅ Escapes importados desde JSON');
+
+    // 🔎 DEBUG: verificar campo 'empresa' en BBDD
+    final n = await WordDatabase.instance.countConEmpresa();
+    print('👉 Registros con empresa: $n');
+
+    final faltan = await WordDatabase.instance.getSinEmpresa(limit: 5);
+    for (final w in faltan) {
+      print('⚠️ Sin empresa → ${w.text} | ${w.web}');
+    }
+
+    print('🎉 Base de datos completamente cargada');
+  } catch (e) {
+    print('⚠️ Error al inicializar base de datos: $e');
+  }
 }
 
 Future<void> deleteDatabaseIfNeeded() async {
@@ -71,6 +81,30 @@ Future<void> deleteDatabaseIfNeeded() async {
   await deleteDatabase(path);
 }
 
+// Versión LOCAL sin Firebase (para distribución Android)
+class MyAppLocal extends StatelessWidget {
+  const MyAppLocal({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final MaterialTheme materialTheme =
+        MaterialTheme(ThemeData.light().textTheme);
+
+    return MaterialApp(
+      title: 'Escape Fem',
+      theme: materialTheme.light(),
+      // Sin Firebase - ir directamente a la app
+      home: const MainNavigation(),
+      routes: {
+        '/main': (context) => const MainNavigation(),
+        '/achievements': (context) => const AchievementsPage(),
+        '/debug-auth': (context) => const DebugAuthPage(),
+      },
+    );
+  }
+}
+
+// Versión CON Firebase (para iOS y desarrollo)
 class MyApp extends StatelessWidget {
   final AuthService authService;
 

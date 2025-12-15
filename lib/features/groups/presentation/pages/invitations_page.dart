@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/services/group_service.dart';
 import '../../data/models/group_invitation.dart';
-import '../../../../services/auth_service.dart';
+import '../../utils/auth_helper.dart';
 import 'group_detail_page.dart';
 
 class InvitationsPage extends StatefulWidget {
@@ -27,7 +27,7 @@ class _InvitationsPageState extends State<InvitationsPage> {
 
     try {
       final invitations = await _groupService.getPendingInvitations(
-        AuthService.username,
+        AuthHelper.getCurrentUsername(),
       );
 
       setState(() {
@@ -47,7 +47,7 @@ class _InvitationsPageState extends State<InvitationsPage> {
   Future<void> _acceptInvitation(GroupInvitation invitation) async {
     final success = await _groupService.acceptInvitation(
       invitation.id!,
-      AuthService.username,
+      AuthHelper.getCurrentUsername(),
     );
 
     if (success && mounted) {
@@ -100,7 +100,7 @@ class _InvitationsPageState extends State<InvitationsPage> {
     if (confirm == true) {
       final success = await _groupService.rejectInvitation(
         invitation.id!,
-        AuthService.username,
+        AuthHelper.getCurrentUsername(),
       );
 
       if (success && mounted) {

@@ -313,6 +313,7 @@ class WordDatabase {
             telefono: (w.telefono != null && w.telefono!.isNotEmpty) ? w.telefono : current.telefono,
             email: (w.email != null && w.email!.isNotEmpty) ? w.email : current.email,
             provincia: (w.provincia != null && w.provincia!.isNotEmpty) ? w.provincia : current.provincia,
+            imagenUrl: (w.imagenUrl != null && w.imagenUrl!.isNotEmpty) ? w.imagenUrl : current.imagenUrl,
           );
 
           await txn.update('words', merged.toMap(),

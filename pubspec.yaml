@@ -36,6 +36,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.1
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
@@ -46,3 +47,10 @@ flutter:
     - assets/images/logo_escape_fem_FAV.png
     - assets/images/avatars/
     - assets/genres/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo_escape_fem_dark.png"
+  adaptive_icon_background: "#00172B"
+  adaptive_icon_foreground: "assets/images/logo_escape_fem.png"

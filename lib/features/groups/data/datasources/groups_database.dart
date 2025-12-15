@@ -25,7 +25,7 @@ class GroupsDatabase {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
     );
@@ -55,6 +55,35 @@ class GroupsDatabase {
       // Índices para invitaciones
       await db.execute('CREATE INDEX idx_invitations_recipient ON group_invitations(recipientUsername, status)');
       await db.execute('CREATE INDEX idx_invitations_group ON group_invitations(groupId)');
+    }
+
+    if (oldVersion < 3) {
+      // Verificar si la tabla group_invitations existe, si no, crearla
+      var tables = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='group_invitations'"
+      );
+
+      if (tables.isEmpty) {
+        // Crear tabla de invitaciones
+        await db.execute('''
+          CREATE TABLE group_invitations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            groupId INTEGER NOT NULL,
+            groupName TEXT NOT NULL,
+            senderUsername TEXT NOT NULL,
+            recipientUsername TEXT NOT NULL,
+            createdAt TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending',
+            message TEXT,
+            FOREIGN KEY (groupId) REFERENCES groups (id) ON DELETE CASCADE,
+            UNIQUE(groupId, recipientUsername, status)
+          )
+        ''');
+
+        // Índices para invitaciones
+        await db.execute('CREATE INDEX idx_invitations_recipient ON group_invitations(recipientUsername, status)');
+        await db.execute('CREATE INDEX idx_invitations_group ON group_invitations(groupId)');
+      }
     }
   }
 
@@ -133,11 +162,29 @@ class GroupsDatabase {
       )
     ''');
 
+    // Tabla de invitaciones (IMPORTANTE: debe estar en onCreate también)
+    await db.execute('''
+      CREATE TABLE group_invitations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        groupId INTEGER NOT NULL,
+        groupName TEXT NOT NULL,
+        senderUsername TEXT NOT NULL,
+        recipientUsername TEXT NOT NULL,
+        createdAt TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending',
+        message TEXT,
+        FOREIGN KEY (groupId) REFERENCES groups (id) ON DELETE CASCADE,
+        UNIQUE(groupId, recipientUsername, status)
+      )
+    ''');
+
     // Índices para mejorar rendimiento
     await db.execute('CREATE INDEX idx_group_members_groupId ON group_members(groupId)');
     await db.execute('CREATE INDEX idx_group_sessions_groupId ON group_sessions(groupId)');
     await db.execute('CREATE INDEX idx_session_ratings_sessionId ON session_ratings(sessionId)');
     await db.execute('CREATE INDEX idx_session_photos_sessionId ON session_photos(sessionId)');
+    await db.execute('CREATE INDEX idx_invitations_recipient ON group_invitations(recipientUsername, status)');
+    await db.execute('CREATE INDEX idx_invitations_group ON group_invitations(groupId)');
   }
 
   // ==================== GRUPOS ====================

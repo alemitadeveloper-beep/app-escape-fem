@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/services/group_service.dart';
 import '../../data/models/group.dart';
-import '../../../../services/auth_service.dart';
+import '../../utils/auth_helper.dart';
 
 class EditGroupPage extends StatefulWidget {
   final EscapeGroup group;
@@ -58,7 +58,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
 
       final success = await _groupService.updateGroup(
         updatedGroup,
-        AuthService.username,
+        AuthHelper.getCurrentUsername(),
       );
 
       if (mounted) {

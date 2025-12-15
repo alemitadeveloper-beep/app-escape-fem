@@ -115,7 +115,17 @@ class _WordListPageRefactoredState extends State<WordListPageRefactored> {
       await _repository.togglePending(word.id!, false);
     }
 
-    await _loadWords();
+    // Actualizar solo el word afectado sin recargar toda la lista
+    setState(() {
+      final index = _allWords.indexWhere((w) => w.id == word.id);
+      if (index != -1) {
+        _allWords[index] = _allWords[index].copyWith(
+          isPlayed: newPlayedValue,
+          isPending: newPlayedValue ? false : _allWords[index].isPending,
+        );
+      }
+    });
+    _applyFiltersAndSort();
   }
 
   Future<void> _togglePending(Word word) async {
@@ -126,7 +136,17 @@ class _WordListPageRefactoredState extends State<WordListPageRefactored> {
       await _repository.togglePlayed(word.id!, false);
     }
 
-    await _loadWords();
+    // Actualizar solo el word afectado sin recargar toda la lista
+    setState(() {
+      final index = _allWords.indexWhere((w) => w.id == word.id);
+      if (index != -1) {
+        _allWords[index] = _allWords[index].copyWith(
+          isPending: newPendingValue,
+          isPlayed: newPendingValue ? false : _allWords[index].isPlayed,
+        );
+      }
+    });
+    _applyFiltersAndSort();
   }
 
   void _openFilterModal() {
